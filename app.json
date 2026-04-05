@@ -42,7 +42,8 @@
           "locationAlwaysAndWhenInUsePermission": "O NavGate precisa da sua localização para exibir sua posição no mapa."
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "extra": {
       "router": {},
