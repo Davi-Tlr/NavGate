@@ -1,4 +1,4 @@
-{
+﻿{
   "expo": {
     "name": "NavGate",
     "slug": "NavGate",
@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -39,9 +39,10 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "O NavGate precisa da sua localização para exibir sua posição no mapa."
+          "locationAlwaysAndWhenInUsePermission": "O NavGate precisa da sua localizaÃ§Ã£o para exibir sua posiÃ§Ã£o no mapa."
         }
       ],
+      "expo-router",
       "expo-font"
     ],
     "extra": {

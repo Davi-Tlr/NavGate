@@ -1,0 +1,1499 @@
+﻿// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\app\(tabs)\favoritos.tsx
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useFavoritos } from '@/features/favoritos/hooks/useFavoritos';
+import { Aerodromo } from '@/features/aerodromos/types';
+import { useRouter } from 'expo-router';
+
+const TIPO_EMOJI: Record<string, string> = {
+  large_airport: 'âœˆï¸',
+  medium_airport: 'ðŸ›«',
+  small_airport: 'ðŸ›©ï¸',
+  heliport: 'ðŸš',
+  seaplane_base: 'ðŸ›¥ï¸',
+};
+
+function CardFavorito({ item }: { item: Aerodromo }) {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.7}
+      onPress={() => router.push(`/aerodromo/${item.icao}`)}
+    >
+      <Text style={styles.tipoIcon}>{TIPO_EMOJI[item.tipo] ?? 'âœˆï¸'}</Text>
+      <View style={styles.cardInfo}>
+        <View style={styles.cardTopo}>
+          <Text style={styles.icao}>{item.icao}</Text>
+          {item.iata ? <Text style={styles.iata}>{item.iata}</Text> : null}
+        </View>
+        <Text style={styles.nome} numberOfLines={1}>{item.nome}</Text>
+        <Text style={styles.municipio}>
+          {item.municipio} Â· {item.regiao.replace('BR-', '')}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+    </TouchableOpacity>
+  );
+}
+
+export default function FavoritosScreen() {
+  const { favoritos, isLoading } = useFavoritos();
+
+  if (isLoading && favoritos.length === 0) {
+    return (
+      <View style={styles.centro}>
+        <ActivityIndicator size="large" color="#4A9EFF" />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.titulo}>Meus Favoritos</Text>
+
+      {favoritos.length > 0 ? (
+        <FlatList
+          data={favoritos}
+          keyExtractor={item => item.icao}
+          renderItem={({ item }) => <CardFavorito item={item} />}
+          contentContainerStyle={styles.lista}
+        />
+      ) : (
+        <View style={styles.vazio}>
+          <Ionicons name="heart-dislike" size={64} color="#1a2035" />
+          <Text style={styles.vazioTitulo}>Lista Vazia</Text>
+          <Text style={styles.vazioTexto}>
+            Toque no coraÃ§Ã£o na tela de detalhes{'\n'}de um aerÃ³dromo para salvÃ¡-lo aqui.
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0f1e',
+    padding: 16,
+  },
+  titulo: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    marginTop: 8,
+  },
+  centro: {
+    flex: 1,
+    backgroundColor: '#0a0f1e',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lista: { paddingBottom: 24 },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a2035',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
+  tipoIcon: { fontSize: 24, marginRight: 12 },
+  cardInfo: { flex: 1 },
+  cardTopo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  icao: { color: '#4A9EFF', fontWeight: 'bold', fontSize: 16 },
+  iata: { color: '#6B7280', fontSize: 12 },
+  nome: { color: '#ffffff', fontSize: 14, marginTop: 2 },
+  municipio: { color: '#6B7280', fontSize: 12, marginTop: 2 },
+  vazio: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    paddingBottom: 100,
+  },
+  vazioTitulo: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  vazioTexto: {
+    color: '#6B7280',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+});
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\app\(tabs)\index.tsx
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAerodromos } from '@/features/aerodromos/hooks/useAerodromos';
+import { Aerodromo } from '@/features/aerodromos/types';
+import { useRouter } from 'expo-router';
+
+// Mapa de emojis por tipo de aerÃ³dromo
+// Fica fora do componente para nÃ£o ser recriado a cada render
+const TIPO_EMOJI: Record<Aerodromo['tipo'], string> = {
+  large_airport: 'âœˆï¸',
+  medium_airport: 'ðŸ›«',
+  small_airport: 'ðŸ›©ï¸',
+  heliport: 'ðŸš',
+  seaplane_base: 'ðŸ›¥ï¸',
+};
+
+function CardAerodromo({ item }: { item: Aerodromo }) {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.7}
+      onPress={() => router.push(`/aerodromo/${item.icao}`)}
+    >
+      <Text style={styles.tipoIcon}>{TIPO_EMOJI[item.tipo] ?? 'âœˆï¸'}</Text>
+      <View style={styles.cardInfo}>
+        <View style={styles.cardTopo}>
+          <Text style={styles.icao}>{item.icao}</Text>
+          {item.iata ? <Text style={styles.iata}>{item.iata}</Text> : null}
+        </View>
+        <Text style={styles.nome} numberOfLines={1}>{item.nome}</Text>
+        <Text style={styles.municipio}>
+          {item.municipio} Â· {item.regiao.replace('BR-', '')}
+        </Text>
+      </View>
+      <Text style={styles.altitude}>{item.altitude_ft} ft</Text>
+    </TouchableOpacity>
+  );
+}
+
+export default function BuscaScreen() {
+  const { termo, resultados, buscar, limpar, temResultados } = useAerodromos();
+
+  return (
+    <View style={styles.container}>
+
+      {/* Campo de busca */}
+      <View style={styles.inputContainer}>
+        <Ionicons name="search" size={20} color="#6B7280" style={styles.inputIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder="ICAO, nome ou cidade..."
+          placeholderTextColor="#6B7280"
+          value={termo}
+          onChangeText={buscar}
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+        {termo.length > 0 && (
+          <TouchableOpacity onPress={limpar}>
+            <Ionicons name="close-circle" size={20} color="#6B7280" />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* TrÃªs estados possÃ­veis da tela */}
+      {temResultados ? (
+        // Estado 1: hÃ¡ resultados â€” mostra a lista
+        <FlatList
+          data={resultados}
+          keyExtractor={item => item.icao}
+          renderItem={({ item }) => <CardAerodromo item={item} />}
+          contentContainerStyle={styles.lista}
+          keyboardShouldPersistTaps="handled"
+        />
+      ) : termo.length >= 2 ? (
+        // Estado 2: buscou mas nÃ£o encontrou
+        <View style={styles.vazio}>
+          <Ionicons name="search" size={48} color="#1a2035" />
+          <Text style={styles.vazioTexto}>Nenhum aerÃ³dromo encontrado</Text>
+        </View>
+      ) : (
+        // Estado 3: ainda nÃ£o digitou nada
+        <View style={styles.vazio}>
+          <Ionicons name="airplane" size={48} color="#1a2035" />
+          <Text style={styles.vazioTexto}>
+            Digite o cÃ³digo ICAO, nome ou cidade
+          </Text>
+        </View>
+      )}
+
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0f1e',
+    padding: 16,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a2035',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    height: 48,
+  },
+  inputIcon: { marginRight: 8 },
+  input: {
+    flex: 1,
+    color: '#ffffff',
+    fontSize: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  lista: { paddingBottom: 16 },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a2035',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
+  tipoIcon: { fontSize: 24, marginRight: 12 },
+  cardInfo: { flex: 1 },
+  cardTopo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  icao: { color: '#4A9EFF', fontWeight: 'bold', fontSize: 16 },
+  iata: { color: '#6B7280', fontSize: 12 },
+  nome: { color: '#ffffff', fontSize: 14, marginTop: 2 },
+  municipio: { color: '#6B7280', fontSize: 12, marginTop: 2 },
+  altitude: { color: '#6B7280', fontSize: 12 },
+  vazio: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  vazioTexto: {
+    color: '#6B7280',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+});
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\app\(tabs)\mapa.tsx
+import { View, StyleSheet } from 'react-native';
+import { MapaBase } from '@/features/mapa/components/MapaBase';
+
+export default function MapaScreen() {
+  return (
+    <View style={styles.container}>
+      <MapaBase 
+        center={[-46.6333, -23.5505]} // SÃ£o Paulo como padrÃ£o
+        zoom={10}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0f1e',
+  },
+});
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\app\(tabs)\meteorologia.tsx
+import React from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useFavoritos } from '@/features/favoritos/hooks/useFavoritos';
+import { MeteorologiaCard } from '@/features/metar/components/MeteorologiaCard';
+
+export default function MeteorologiaScreen() {
+  const { favoritos, fetchFavoritos } = useFavoritos();
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.titulo}>Meteorologia</Text>
+        <TouchableOpacity 
+          onPress={() => fetchFavoritos()} 
+          style={styles.botaoRecarregar}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="refresh" size={20} color="#4A9EFF" />
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.subtitulo}>Status dos seus favoritos</Text>
+
+      {favoritos.length > 0 ? (
+        <FlatList
+          data={favoritos}
+          keyExtractor={(item) => `metar-${item.icao}`}
+          renderItem={({ item }) => (
+            <MeteorologiaCard icao={item.icao} nome={item.nome} />
+          )}
+          contentContainerStyle={styles.lista}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <View style={styles.vazio}>
+          <Ionicons name="cloud-offline-outline" size={64} color="#1a2035" />
+          <Text style={styles.vazioTitulo}>Sem aerÃ³dromos</Text>
+          <Text style={styles.vazioTexto}>
+            Favorite aerÃ³dromos para acompanhar a meteorologia em tempo real nesta aba.
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0f1e',
+    padding: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  titulo: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  subtitulo: {
+    color: '#6B7280',
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  botaoRecarregar: {
+    padding: 8,
+    backgroundColor: '#1a2035',
+    borderRadius: 8,
+  },
+  lista: {
+    paddingBottom: 20,
+  },
+  vazio: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 100,
+  },
+  vazioTitulo: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 16,
+  },
+  vazioTexto: {
+    color: '#6B7280',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
+  },
+});
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\app\(tabs)\_layout.tsx
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+export default function TabLayout() {
+  return (
+    <Tabs
+      initialRouteName="index"
+      screenOptions={{
+        tabBarActiveTintColor: '#4A9EFF',
+        tabBarInactiveTintColor: '#6B7280',
+        tabBarStyle: {
+          backgroundColor: '#0a0f1e',
+          borderTopColor: '#1a2035',
+          borderTopWidth: 1,
+        },
+        headerStyle: {
+          backgroundColor: '#0a0f1e',
+        },
+        headerTintColor: '#ffffff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Busca',
+          headerTitle: 'NavGate',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="mapa"
+        options={{
+          title: 'Mapa',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="map" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="meteorologia"
+        options={{
+          title: 'Tempo',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="partly-sunny" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="favoritos"
+        options={{
+          title: 'Favoritos',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="star" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\app\_layout.tsx
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+
+export default function RootLayout() {
+  return (
+    <>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: '#0a0f1e' },
+          headerTintColor: '#ffffff',
+          headerTitleStyle: { fontWeight: 'bold' },
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="aerodromo/[icao]"
+          options={{ title: 'Detalhes' }}
+        />
+        <Stack.Screen
+          name="metar/[icao]"
+          options={{ title: 'METAR / TAF' }}
+        />
+      </Stack>
+    </>
+  );
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\aerodromos\hooks\useAerodromos.ts
+import { useState, useCallback } from 'react';
+import { Aerodromo } from '../types';
+import { buscarAerodromos } from '../services/aerodromoService';
+
+export function useAerodromos() {
+    const [resultados, setResultados] = useState<Aerodromo[]>([]);
+    const [termo, setTermo] = useState('');
+
+    const buscar = useCallback((texto: string) => {
+        setTermo(texto);
+        setResultados(buscarAerodromos(texto));
+    }, []);
+
+    const limpar = useCallback(() => {
+        setTermo('');
+        setResultados([]);
+    }, []);
+
+    return {
+        termo,
+        resultados,
+        buscar,
+        limpar,
+        temResultados: resultados.length > 0,
+    };
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\aerodromos\services\aerodromoService.ts
+import aerodromosData from '../../../../assets/data/aerodromos_br.json';
+import { Aerodromo } from '../types';
+
+const AERODROMOS: Aerodromo[] = aerodromosData as Aerodromo[];
+
+export function buscarAerodromos(termo: string): Aerodromo[] {
+    if (!termo || termo.trim().length < 2) return [];
+
+    const busca = termo.trim().toUpperCase();
+
+    return AERODROMOS.filter(a =>
+        a.icao.includes(busca) ||
+        a.nome.toUpperCase().includes(busca) ||
+        a.municipio.toUpperCase().includes(busca)
+    ).slice(0, 20);
+}
+
+export function buscarPorIcao(icao: string): Aerodromo | undefined {
+    return AERODROMOS.find(a => a.icao === icao.toUpperCase());
+}
+
+export function totalAerodromos(): number {
+    return AERODROMOS.length;
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\aerodromos\types.ts
+export interface Aerodromo {
+    icao: string;
+    nome: string;
+    tipo: 'large_airport' | 'medium_airport' | 'small_airport' | 'heliport' | 'seaplane_base';
+    latitude: number;
+    longitude: number;
+    altitude_ft: number;
+    municipio: string;
+    regiao: string;
+    iata: string;
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\favoritos\hooks\useFavoritos.ts
+import { create } from 'zustand';
+import { Aerodromo } from '../../aerodromos/types';
+import { Favorito } from '../types';
+import { favoritoService } from '../services/favoritoService';
+import { useEffect } from 'react';
+
+interface FavoritosState {
+  favoritos: Favorito[];
+  isLoading: boolean;
+  fetchFavoritos: () => Promise<void>;
+  adicionarFavorito: (aerodromo: Aerodromo) => Promise<void>;
+  removerFavorito: (icao: string) => Promise<void>;
+  isFavorito: (icao: string) => boolean;
+}
+
+const useFavoritosStore = create<FavoritosState>((set, get) => ({
+  favoritos: [],
+  isLoading: false,
+
+  fetchFavoritos: async () => {
+    set({ isLoading: true });
+    try {
+      await favoritoService.initDb();
+      const favs = await favoritoService.listarFavoritos();
+      set({ favoritos: favs, isLoading: false });
+    } catch (error) {
+      console.error('Erro ao buscar favoritos:', error);
+      set({ isLoading: false });
+    }
+  },
+
+  adicionarFavorito: async (aerodromo: Aerodromo) => {
+    try {
+      await favoritoService.adicionarFavorito(aerodromo);
+      const favs = await favoritoService.listarFavoritos();
+      set({ favoritos: favs });
+    } catch (error) {
+      console.error('Erro ao adicionar favorito:', error);
+    }
+  },
+
+  removerFavorito: async (icao: string) => {
+    try {
+      await favoritoService.removerFavorito(icao);
+      const favs = await favoritoService.listarFavoritos();
+      set({ favoritos: favs });
+    } catch (error) {
+      console.error('Erro ao remover favorito:', error);
+    }
+  },
+
+  isFavorito: (icao: string) => {
+    return get().favoritos.some((f) => f.icao === icao);
+  },
+}));
+
+export const useFavoritos = () => {
+  const store = useFavoritosStore();
+
+  useEffect(() => {
+    // Inicializa se necessÃ¡rio
+    if (store.favoritos.length === 0 && !store.isLoading) {
+      store.fetchFavoritos();
+    }
+  }, []);
+
+  return store;
+};
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\favoritos\services\favoritoService.ts
+import * as SQLite from 'expo-sqlite';
+import { Aerodromo } from '../../aerodromos/types';
+import { Favorito } from '../types';
+
+const DATABASE_NAME = 'navgate.db';
+let dbInstance: SQLite.SQLiteDatabase | null = null;
+
+export const favoritoService = {
+  async getDb() {
+    if (dbInstance) return dbInstance;
+    
+    try {
+      dbInstance = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      return dbInstance;
+    } catch (error) {
+      console.error('[DATABASE] Erro ao abrir banco:', error);
+      throw error;
+    }
+  },
+
+  async initDb() {
+    try {
+      const db = await this.getDb();
+      await db.execAsync(`
+        PRAGMA journal_mode = WAL;
+        CREATE TABLE IF NOT EXISTS favoritos (
+          icao TEXT PRIMARY KEY NOT NULL,
+          nome TEXT NOT NULL,
+          tipo TEXT NOT NULL,
+          latitude REAL NOT NULL,
+          longitude REAL NOT NULL,
+          altitude_ft INTEGER NOT NULL,
+          municipio TEXT NOT NULL,
+          regiao TEXT NOT NULL,
+          iata TEXT,
+          data_adicao TEXT NOT NULL
+        );
+      `);
+      console.log('[DATABASE] Banco inicializado com sucesso');
+    } catch (error) {
+      console.error('[DATABASE] Erro na inicializaÃ§Ã£o:', error);
+    }
+  },
+
+  async listarFavoritos(): Promise<Favorito[]> {
+    const db = await this.getDb();
+    return await db.getAllAsync<Favorito>('SELECT * FROM favoritos ORDER BY data_adicao DESC');
+  },
+
+  async adicionarFavorito(aerodromo: Aerodromo): Promise<void> {
+    const db = await this.getDb();
+    const dataAdicao = new Date().toISOString();
+    
+    await db.runAsync(
+      `INSERT OR REPLACE INTO favoritos (icao, nome, tipo, latitude, longitude, altitude_ft, municipio, regiao, iata, data_adicao) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        aerodromo.icao,
+        aerodromo.nome,
+        aerodromo.tipo,
+        aerodromo.latitude,
+        aerodromo.longitude,
+        aerodromo.altitude_ft,
+        aerodromo.municipio,
+        aerodromo.regiao,
+        aerodromo.iata || '',
+        dataAdicao,
+      ]
+    );
+  },
+
+  async removerFavorito(icao: string): Promise<void> {
+    const db = await this.getDb();
+    await db.runAsync('DELETE FROM favoritos WHERE icao = ?', [icao]);
+  },
+
+  async isFavorito(icao: string): Promise<boolean> {
+    const db = await this.getDb();
+    const firstRow = await db.getFirstAsync<{ count: number }>(
+      'SELECT COUNT(*) as count FROM favoritos WHERE icao = ?',
+      [icao]
+    );
+    return (firstRow?.count ?? 0) > 0;
+  },
+};
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\favoritos\types.ts
+import { Aerodromo } from '../aerodromos/types';
+
+export interface Favorito extends Aerodromo {
+    data_adicao: string;
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\mapa\components\MapaBase.tsx
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+/**
+ * ADAPTER PATTERN: Este componente isola a biblioteca de mapas.
+ * Como o MapLibre exige Development Build, este adapter permite que o app
+ * continue funcionando no Expo Go com um fallback visual.
+ */
+
+interface MapaBaseProps {
+  center?: [number, number]; // [longitude, latitude]
+  zoom?: number;
+}
+
+export function MapaBase({ center = [-46.6333, -23.5505], zoom = 10 }: MapaBaseProps) {
+  // TODO: Quando tiver o Development Build, importar e usar o MapLibre aqui.
+  // import MapLibreGL from '@maplibre/maplibre-react-native';
+
+  const isDevelopmentBuild = false; // Detectar dinamicamente no futuro
+
+  if (!isDevelopmentBuild) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.fallback}>
+          <Ionicons name="map-outline" size={64} color="#1a2035" />
+          <Text style={styles.titulo}>Mapa em modo de espera</Text>
+          <Text style={styles.texto}>
+            O mapa requer um Development Build para funcionar.
+            No Expo Go, esta Ã¡rea mostra apenas o esqueleto da interface.
+          </Text>
+          <View style={styles.coordenadas}>
+            <Text style={styles.coordTexto}>Centro: {center[1].toFixed(4)}, {center[0].toFixed(4)}</Text>
+            <Text style={styles.coordTexto}>Zoom: {zoom}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Exemplo de como serÃ¡ a implementaÃ§Ã£o real:
+  /*
+  return (
+    <MapLibreGL.MapView style={styles.map}>
+      <MapLibreGL.Camera centerCoordinate={center} zoomLevel={zoom} />
+      <MapLibreGL.RasterSource id="opentopo" tileUrlTemplates={['https://tile.opentopomap.org/{z}/{x}/{y}.png']}>
+        <MapLibreGL.RasterLayer id="opentopoLayer" sourceID="opentopo" />
+      </MapLibreGL.RasterSource>
+    </MapLibreGL.MapView>
+  );
+  */
+  
+  return null;
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0f1e',
+  },
+  fallback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    gap: 16,
+  },
+  titulo: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  texto: {
+    color: '#6B7280',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  coordenadas: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: '#1a2035',
+    borderRadius: 8,
+    width: '100%',
+  },
+  coordTexto: {
+    color: '#4A9EFF',
+    fontSize: 12,
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  },
+  map: {
+    flex: 1,
+  }
+});
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\mapa\hooks\useMapa.ts
+import { useState, useEffect, useCallback } from 'react';
+import { mapaService } from '../services/mapaService';
+
+export function useMapa() {
+  const [aerodromos, setAerodromos] = useState<any>(null);
+  const [espacosAereos, setEspacosAereos] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const carregarDadosMapa = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // 1. Carrega aerÃ³dromos (local instantÃ¢neo)
+      const aeroGeoJSON = mapaService.getAerodromosGeoJSON();
+      setAerodromos(aeroGeoJSON);
+
+      // 2. Tenta buscar espaÃ§os aÃ©reos (rede opcional)
+      const airspaces = await mapaService.buscarEspacosAereos();
+      if (airspaces) {
+        setEspacosAereos(airspaces);
+      }
+    } catch (err) {
+      console.error('[USE_MAPA] Falha ao carregar dados:', err);
+      setError('NÃ£o foi possÃ­vel carregar alguns dados do mapa.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarDadosMapa();
+  }, [carregarDadosMapa]);
+
+  return {
+    aerodromos,
+    espacosAereos,
+    loading,
+    error,
+    recarregar: carregarDadosMapa
+  };
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\mapa\services\mapaService.ts
+import { apiRequest } from '@/services/api/apiClient';
+import aerodromosData from '@/../assets/data/aerodromos_br.json';
+import { Aerodromo } from '../../aerodromos/types';
+
+export interface AirspaceFeature {
+  type: 'Feature';
+  properties: {
+    name: string;
+    type: string;
+    lowerLimit: string;
+    upperLimit: string;
+  };
+  geometry: any;
+}
+
+export const mapaService = {
+  /**
+   * Retorna os aerÃ³dromos formatados para o mapa (GeoJSON)
+   */
+  getAerodromosGeoJSON() {
+    const features = (aerodromosData as Aerodromo[]).map(a => ({
+      type: 'Feature',
+      properties: {
+        icao: a.icao,
+        nome: a.nome,
+        tipo: a.tipo,
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: [a.longitude, a.latitude],
+      },
+    }));
+
+    return {
+      type: 'FeatureCollection',
+      features,
+    };
+  },
+
+  /**
+   * Busca espaÃ§os aÃ©reos do OpenAIP
+   * Nota: Idealmente, salvar o resultado em cache para uso offline
+   */
+  async buscarEspacosAereos() {
+    try {
+      // Endpoint exemplo do OpenAIP para espaÃ§os aÃ©reos
+      // DocumentaÃ§Ã£o: https://docs.openaip.net/
+      const data = await apiRequest<any>('OPENAIP', '/airspaces', {
+        country: 'BR',
+        limit: '100',
+      });
+      return data;
+    } catch (error) {
+      console.error('[MAPA_SERVICE] Erro ao buscar espaÃ§os aÃ©reos:', error);
+      return null;
+    }
+  }
+};
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\metar\components\MeteorologiaCard.tsx
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useMetar } from '../hooks/useMetar';
+
+interface MeteorologiaCardProps {
+  icao: string;
+  nome: string;
+}
+
+export function MeteorologiaCard({ icao, nome }: MeteorologiaCardProps) {
+  const router = useRouter();
+  const { metar, loading, erro, buscar } = useMetar();
+
+  useEffect(() => {
+    buscar(icao);
+  }, [icao, buscar]);
+
+  const handlePress = () => {
+    router.push(`/metar/${icao}`);
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.card, styles.centro]}>
+        <ActivityIndicator size="small" color="#4A9EFF" />
+      </View>
+    );
+  }
+
+  if (erro || !metar) {
+    return (
+      <TouchableOpacity style={styles.card} onPress={handlePress}>
+        <View style={styles.infoPrincipal}>
+          <Text style={styles.icao}>{icao}</Text>
+          <Text style={styles.nome} numberOfLines={1}>{nome}</Text>
+        </View>
+        <View style={styles.statusErro}>
+          <Ionicons name="alert-circle" size={16} color="#6B7280" />
+          <Text style={styles.erroTexto}>N/D</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <TouchableOpacity style={styles.card} onPress={handlePress} activeOpacity={0.7}>
+      <View style={styles.infoPrincipal}>
+        <View style={styles.topoCard}>
+          <Text style={styles.icao}>{metar.icao}</Text>
+          <View style={[styles.badge, { backgroundColor: metar.cor_condicao }]}>
+            <Text style={styles.badgeTexto}>{metar.condicao}</Text>
+          </View>
+        </View>
+        <Text style={styles.nome} numberOfLines={1}>{nome}</Text>
+      </View>
+
+      <View style={styles.detalhes}>
+        <View style={styles.linhaDetalhe}>
+          <Ionicons name="swap-horizontal" size={14} color="#6B7280" />
+          <Text style={styles.detalheTexto}>
+            {metar.vento_direcao}Â° / {metar.vento_velocidade}kt
+          </Text>
+        </View>
+        <View style={styles.linhaDetalhe}>
+          <Ionicons name="cloud" size={14} color="#6B7280" />
+          <Text style={styles.detalheTexto} numberOfLines={1}>
+            {metar.nuvens}
+          </Text>
+        </View>
+      </View>
+      
+      <Ionicons name="chevron-forward" size={18} color="#1a2035" />
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a2035',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    minHeight: 80,
+  },
+  centro: {
+    justifyContent: 'center',
+  },
+  infoPrincipal: {
+    flex: 1,
+    marginRight: 8,
+  },
+  topoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  icao: {
+    color: '#4A9EFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  nome: {
+    color: '#ffffff',
+    fontSize: 13,
+    opacity: 0.8,
+  },
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  badgeTexto: {
+    color: '#0a0f1e',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  detalhes: {
+    width: 120,
+    gap: 4,
+  },
+  linhaDetalhe: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  detalheTexto: {
+    color: '#6B7280',
+    fontSize: 12,
+  },
+  statusErro: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  erroTexto: {
+    color: '#6B7280',
+    fontSize: 12,
+  },
+});
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\metar\hooks\useMetar.ts
+import { useState, useCallback } from 'react';
+import { MetarProcessado } from '../types';
+import { buscarMetar, buscarTaf } from '../services/metarService';
+
+interface EstadoMetar {
+    loading: boolean;
+    metar: MetarProcessado | null;
+    taf: string | null;
+    erro: string | null;
+    isMock: boolean;
+}
+
+export function useMetar() {
+    const [estado, setEstado] = useState<EstadoMetar>({
+        loading: false,
+        metar: null,
+        taf: null,
+        erro: null,
+        isMock: false,
+    });
+
+    const buscar = useCallback(async (icao: string) => {
+        setEstado(e => ({ ...e, loading: true, erro: null }));
+
+        try {
+            const [resultadoMetar, tafRaw] = await Promise.all([
+                buscarMetar(icao),
+                buscarTaf(icao),
+            ]);
+
+            setEstado({
+                loading: false,
+                metar: resultadoMetar.processado,
+                taf: tafRaw,
+                erro: null,
+                isMock: resultadoMetar.isMock,
+            });
+        } catch (e) {
+            const mensagem = e instanceof Error ? e.message : 'Erro desconhecido';
+            setEstado(e => ({
+                ...e,
+                loading: false,
+                erro: mensagem,
+                metar: null,
+            }));
+        }
+    }, []);
+
+    return { ...estado, buscar };
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\metar\services\metarParser.ts
+import { MetarProcessado } from '../types';
+
+// Classifica a condiÃ§Ã£o de voo baseado em visibilidade e teto de nuvens
+// Esta Ã© a classificaÃ§Ã£o oficial da aviaÃ§Ã£o civil
+function classificarCondicao(
+    visibilidadeMetros: number,
+    tetoPes: number | null
+): MetarProcessado['condicao'] {
+    // LIFR: visibilidade < 1.6 km OU teto < 500 ft
+    if (visibilidadeMetros < 1600 || (tetoPes !== null && tetoPes < 500)) {
+        return 'LIFR';
+    }
+    // IFR: visibilidade < 5 km OU teto < 1000 ft
+    if (visibilidadeMetros < 5000 || (tetoPes !== null && tetoPes < 1000)) {
+        return 'IFR';
+    }
+    // MVFR: visibilidade < 8 km OU teto < 3000 ft
+    if (visibilidadeMetros < 8000 || (tetoPes !== null && tetoPes < 3000)) {
+        return 'MVFR';
+    }
+    // VFR: condiÃ§Ãµes boas para voo visual
+    return 'VFR';
+}
+
+const COR_CONDICAO: Record<MetarProcessado['condicao'], string> = {
+    VFR: '#22C55E', // verde
+    MVFR: '#3B82F6', // azul
+    IFR: '#EF4444', // vermelho
+    LIFR: '#A855F7', // roxo
+};
+
+// Traduz os prefixos de cobertura de nuvens
+const COBERTURA: Record<string, string> = {
+    SKC: 'CÃ©u limpo',
+    CLR: 'CÃ©u limpo',
+    NSC: 'Sem nuvens significativas',
+    CAVOK: 'CAVOK â€” visibilidade excelente',
+    FEW: 'Poucas nuvens',
+    SCT: 'Nuvens esparsas',
+    BKN: 'Nublado',
+    OVC: 'Encoberto',
+};
+
+export function parsearMetar(raw: string, icao: string): MetarProcessado {
+    const partes = raw.trim().split(/\s+/);
+
+    let vento_direcao = 0;
+    let vento_velocidade = 0;
+    let vento_rajada: number | undefined;
+    let visibilidadeMetros = 9999;
+    let visibilidadeTexto = '+10 km';
+    let temperatura = 0;
+    let ponto_orvalho = 0;
+    let qnh = 1013;
+    let nuvens = 'Sem informaÃ§Ã£o';
+    let tetoPes: number | null = null;
+    let hora = '--:-- UTC';
+
+    for (const parte of partes) {
+        // Hora: formato DDHHMMZ (ex: 051200Z)
+        if (/^\d{6}Z$/.test(parte)) {
+            const hh = parte.substring(2, 4);
+            const mm = parte.substring(4, 6);
+            hora = `${hh}:${mm} UTC`;
+        }
+
+        // Vento: formato DDDSSKT ou DDDSS/RRKT (ex: 09010KT ou 09010G18KT)
+        if (/^\d{3}\d{2,3}(G\d{2,3})?KT$/.test(parte)) {
+            vento_direcao = parseInt(parte.substring(0, 3));
+            vento_velocidade = parseInt(parte.substring(3, 5));
+            if (parte.includes('G')) {
+                const gIdx = parte.indexOf('G');
+                vento_rajada = parseInt(parte.substring(gIdx + 1, gIdx + 3));
+            }
+        }
+
+        // Vento variÃ¡vel: VRB05KT
+        if (/^VRB\d{2,3}KT$/.test(parte)) {
+            vento_direcao = 0; // variÃ¡vel
+            vento_velocidade = parseInt(parte.substring(3, 5));
+        }
+
+        // Visibilidade: nÃºmero em metros (ex: 9999, 0800, 1200)
+        if (/^\d{4}$/.test(parte) && !parte.endsWith('Z')) {
+            visibilidadeMetros = parseInt(parte);
+            if (visibilidadeMetros >= 9999) {
+                visibilidadeTexto = '+10 km';
+            } else if (visibilidadeMetros >= 1000) {
+                visibilidadeTexto = `${(visibilidadeMetros / 1000).toFixed(1)} km`;
+            } else {
+                visibilidadeTexto = `${visibilidadeMetros} m`;
+            }
+        }
+
+        // CAVOK (teto e visibilidade OK)
+        if (parte === 'CAVOK') {
+            visibilidadeMetros = 9999;
+            visibilidadeTexto = '+10 km';
+            nuvens = 'CAVOK â€” visibilidade excelente';
+        }
+
+        // Nuvens: FEW020, SCT015, BKN008, OVC003
+        const matchNuvem = parte.match(/^(FEW|SCT|BKN|OVC)(\d{3})/);
+        if (matchNuvem) {
+            const cobertura = matchNuvem[1];
+            const altitude = parseInt(matchNuvem[2]) * 100; // em centenas de pÃ©s
+            nuvens = `${COBERTURA[cobertura] ?? cobertura} a ${altitude.toLocaleString('pt-BR')} ft`;
+            // Teto Ã© BKN ou OVC
+            if ((cobertura === 'BKN' || cobertura === 'OVC') && tetoPes === null) {
+                tetoPes = altitude;
+            }
+        }
+
+        // CÃ©u limpo
+        if (['SKC', 'CLR', 'NSC'].includes(parte)) {
+            nuvens = COBERTURA[parte];
+        }
+
+        // Temperatura e ponto de orvalho: TT/DD (ex: 28/18 ou M02/M05)
+        if (/^M?\d{2}\/M?\d{2}$/.test(parte)) {
+            const [tempStr, dewStr] = parte.split('/');
+            temperatura = tempStr.startsWith('M')
+                ? -parseInt(tempStr.substring(1))
+                : parseInt(tempStr);
+            ponto_orvalho = dewStr.startsWith('M')
+                ? -parseInt(dewStr.substring(1))
+                : parseInt(dewStr);
+        }
+
+        // QNH: Q1013
+        if (/^Q\d{4}$/.test(parte)) {
+            qnh = parseInt(parte.substring(1));
+        }
+    }
+
+    const condicao = classificarCondicao(visibilidadeMetros, tetoPes);
+
+    return {
+        icao,
+        raw,
+        hora,
+        vento_direcao,
+        vento_velocidade,
+        vento_rajada,
+        visibilidade: visibilidadeTexto,
+        temperatura,
+        ponto_orvalho,
+        qnh,
+        condicao,
+        cor_condicao: COR_CONDICAO[condicao],
+        nuvens,
+    };
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\metar\services\metarService.ts
+import { MetarRaw, TafRaw } from '../types';
+import { parsearMetar } from './metarParser';
+
+const REDEMET_KEY = process.env.EXPO_PUBLIC_REDEMET_KEY;
+const BASE_URL = 'https://api-redemet.decea.mil.br';
+
+// Dados simulados para desenvolvimento sem chave de API
+// Representam um METAR real tÃ­pico de Guarulhos
+const MOCK_METARS: Record<string, string> = {
+    SBGR: 'SBGR 051200Z 09010KT 9999 FEW020 28/18 Q1013 NOSIG',
+    SBBE: 'SBBE 051200Z 06008KT 8000 SCT018 BKN025 29/25 Q1010 NOSIG',
+    SBSP: 'SBSP 051200Z 24012G18KT 6000 BKN008 22/20 Q1015 NOSIG',
+    SBCT: 'SBCT 051200Z 35006KT CAVOK 18/12 Q1018 NOSIG',
+    SBRF: 'SBRF 051200Z VRB03KT 9999 FEW015 31/26 Q1011 NOSIG',
+};
+
+function getMockMetar(icao: string): string {
+    // Usa um METAR especÃ­fico se existir, senÃ£o gera um genÃ©rico
+    return MOCK_METARS[icao] ??
+        `${icao} 051200Z 18005KT 9999 SKC 25/15 Q1013 NOSIG`;
+}
+
+export async function buscarMetar(icao: string) {
+    // Sem chave: usa mock e avisa no console
+    if (!REDEMET_KEY) {
+        console.log(`[METAR] Sem chave API â€” usando dados simulados para ${icao}`);
+        const rawMock = getMockMetar(icao);
+        return {
+            processado: parsearMetar(rawMock, icao),
+            raw: rawMock,
+            isMock: true,
+        };
+    }
+
+    // Com chave: busca dados reais da REDEMET
+    const url = `${BASE_URL}/mensagens/metar/${icao}?api_key=${REDEMET_KEY}`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`REDEMET retornou status ${response.status}`);
+    }
+
+    const data = await response.json() as { data: { data: MetarRaw[] } };
+    const metarRaw = data?.data?.data?.[0];
+
+    if (!metarRaw) {
+        throw new Error('Nenhum METAR disponÃ­vel para este aerÃ³dromo');
+    }
+
+    return {
+        processado: parsearMetar(metarRaw.mens, icao),
+        raw: metarRaw.mens,
+        isMock: false,
+    };
+}
+
+export async function buscarTaf(icao: string): Promise<string | null> {
+    if (!REDEMET_KEY) {
+        return `TAF ${icao} 051100Z 0512/0618 09008KT 9999 FEW020 ` +
+            `TEMPO 0514/0518 4000 SHRA BKN015 ` +
+            `BECMG 0518/0520 18006KT`;
+    }
+
+    const url = `${BASE_URL}/mensagens/taf/${icao}?api_key=${REDEMET_KEY}`;
+
+    const response = await fetch(url);
+    if (!response.ok) return null;
+
+    const data = await response.json() as { data: { data: TafRaw[] } };
+    return data?.data?.data?.[0]?.mens ?? null;
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\features\metar\types.ts
+// Representa os dados brutos que a REDEMET retorna
+export interface MetarRaw {
+    mens: string;        // ex: "SBGR 051200Z 09010KT 9999 FEW020 28/18 Q1013"
+    validade: string;    // ex: "2026-04-05T12:00:00Z"
+    id_localidade: string; // ex: "SBGR"
+}
+
+// Dados do METAR jÃ¡ processados para exibir na tela
+export interface MetarProcessado {
+    icao: string;
+    raw: string;              // mensagem original completa
+    hora: string;             // ex: "12:00 UTC"
+    vento_direcao: number;    // ex: 90 (graus)
+    vento_velocidade: number; // ex: 10 (nÃ³s)
+    vento_rajada?: number;    // ex: 18 (nÃ³s), opcional
+    visibilidade: string;     // ex: "10 km" ou "+10 km"
+    temperatura: number;      // ex: 28 (Â°C)
+    ponto_orvalho: number;    // ex: 18 (Â°C)
+    qnh: number;              // ex: 1013 (hPa)
+    condicao: 'VFR' | 'MVFR' | 'IFR' | 'LIFR'; // classificaÃ§Ã£o automÃ¡tica
+    cor_condicao: string;     // cor para exibir na UI
+    nuvens: string;           // ex: "Poucas nuvens a 2000 ft"
+}
+
+export interface TafRaw {
+    mens: string;
+    validade: string;
+    id_localidade: string;
+}
+
+---
+
+// FILE: E:\Estudos-dev\Facul\React-Native\NavGate\src\services\api\apiClient.ts
+const KEYS = {
+  REDEMET: process.env.EXPO_PUBLIC_REDEMET_KEY,
+  AISWEB: process.env.EXPO_PUBLIC_AISWEB_KEY,
+  OPENAIP: process.env.EXPO_PUBLIC_OPENAIP_KEY,
+};
+
+export const API_BASES = {
+  REDEMET: 'https://api-redemet.decea.mil.br',
+  AISWEB: 'https://aisweb.decea.mil.br/api',
+  OPENAIP: 'https://api.core.openaip.net/api',
+};
+
+export async function apiRequest<T>(
+  base: keyof typeof API_BASES,
+  endpoint: string,
+  params: Record<string, string> = {}
+): Promise<T> {
+  const key = KEYS[base];
+  const baseUrl = API_BASES[base];
+  
+  // ConstrÃ³i query string com a API Key
+  const queryParams = new URLSearchParams({
+    ...params,
+    ...(base === 'REDEMET' ? { api_key: key || '' } : {}),
+    ...(base === 'AISWEB' ? { api_key: key || '', apiKey: key || '' } : {}),
+    ...(base === 'OPENAIP' ? { apiKey: key || '' } : {}),
+  });
+
+  const url = `${baseUrl}${endpoint}${endpoint.includes('?') ? '&' : '?'}${queryParams.toString()}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro na API ${base}: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json() as T;
+  } catch (error) {
+    console.error(`[API ERROR] ${base} ${endpoint}:`, error);
+    throw error;
+  }
+}
+
+---
+
