@@ -1,0 +1,55 @@
+Deu problema no mapa, ele não está carregando. 
+        mapStyle="https://tile.opentopomap.org/{z}/{x}/{y}.png"
+O grok me recomendou alterar a URL para alguma dessas:
+Prioridade,Tipo de Mapa,Estilo Recomendado,Vantagens para Aviação,Desvantagens,URL (mapStyle)
+Melhor geral (recomendado),Vetorial + Terreno,OpenMapTiles Bright ou OSM Bright,"Bom relevo, estradas, rios, cidades. Fácil de adicionar camadas de aeródromos por cima.",Pouca informação aeronáutica nativa,https://demotiles.maplibre.org/style.json (demo) ou estilos OpenMapTiles
+Excelente para relevo,Topográfico / Híbrido,OpenTopoMap (raster) ou Stadia Alidade Smooth,Mostra curvas de nível e relevo bem claro — ótimo para evitar montanhas em VFR,Pode dar 403 (como você viu) e é raster (mais lento),https://tile.opentopomap.org/{z}/{x}/{y}.png (com RasterSource)
+Bom e estável,Vetorial básico,MapTiler Basic ou Positron,"Limpo, rápido, boa performance no mobile",Relevo mais fraco,Estilos via OpenMapTiles
+Mais próximo de cartas aeronáuticas,Híbrido (custom),Satellite + Vector overlay ou Terrain + Hillshade,Visual como carta VFR (relevo + informação humana),Precisa de mais código,MapLibre suporta terrain + hillshade
+
+mas preferi não mexer sem ter certeza e tempo para fuçar no projeto.
+
+O erro foi:
+rodei, buildei e quando abri o app:
+ 
+E:\Estudos-dev\Facul…ills\console.js:661 MapLibre error {com.navgate.app}[Setup]: loading style failed: HTTP status code 403
+
+1. Object
+
+anonymous@E:\Estudos-dev\Facul…ills\console.js:661overrideMethod@E:\Estudos-dev\Facul…st\backend.js:17416reactConsoleErrorHandler@E:\Estudos-dev\Facul…tionsManager.js:184anonymous@E:\Estudos-dev\Facul…eveloperTools.js:42onLog@E:\Estudos-dev\Facul…utils\Logger.js:102anonymous@E:\Estudos-dev\Facul…\utils\Logger.js:73emit@E:\Estudos-dev\Facul…EventEmitter.js:130anonymous@E:\Estudos-dev\Facul…s\superPropGet.js:6emit@E:\Estudos-dev\Facul…eEventEmitter.js:33__callFunction@E:\Estudos-dev\Facul…MessageQueue.js:435anonymous@E:\Estudos-dev\Facul…MessageQueue.js:114__guard@E:\Estudos-dev\Facul…MessageQueue.js:369callFunctionReturnFlushedQueue@E:\Estudos-dev\Facul…MessageQueue.js:113
+ 
+...Logs for your project will appear below. Press Ctrl+C to exit.
+Android Bundled 10649ms node_modules\expo-router\entry.js (1249 modules)
+ WARN The app is running using the Legacy Architecture. The Legacy Architecture is deprecated and will be removed in a future version of React Native. Please consider migrating to the New Architecture. For more information, please see https://reactnative.dev/blog/2024/10/23/the-new-architecture-is-here
+ ERROR MapLibre error {com.navgate.app}[Setup]: loading style failed: HTTP status code 403 {"level": "error", "message": "{com.navgate.app}[Setup]: loading style failed: HTTP status code 403", "tag": "Mbgl"}
+Call Stack
+  construct (<native>)
+  apply (<native>)
+  _construct (node_modules\@babel\runtime\helpers\construct.js)
+  Wrapper (node_modules\@babel\runtime\helpers\wrapNativeSuper.js)
+  construct (<native>)
+  _callSuper (node_modules\@babel\runtime\helpers\callSuper.js)
+  NamelessError (node_modules\@expo\metro-runtime\src\metroServerLogs.native.ts)
+  captureCurrentStack (node_modules\@expo\metro-runtime\src\metroServerLogs.native.ts)
+  HMRClient.log (node_modules\@expo\metro-runtime\src\metroServerLogs.native.ts)
+  console.level (node_modules\react-native\Libraries\Core\setUpDeveloperTools.js)
+  onLog (node_modules\@maplibre\maplibre-react-native\lib\module\utils\Logger.js)
+  loggerEmitter.addListener$argument_1 (node_modules\@maplibre\maplibre-react-native\lib\module\utils\Logger.js)
+  apply (<native>)
+  emit (node_modules\react-native\Libraries\vendor\emitter\EventEmitter.js)
+  apply (<native>)
+  <anonymous> (node_modules\@babel\runtime\helpers\superPropGet.js)
+  RCTDeviceEventEmitterImpl#emit (node_modules\react-native\Libraries\EventEmitter\RCTDeviceEventEmitter.js)
+  apply (<native>)
+  __callFunction (node_modules\react-native\Libraries\BatchedBridge\MessageQueue.js)
+  __guard$argument_0 (node_modules\react-native\Libraries\BatchedBridge\MessageQueue.js)
+  __guard (node_modules\react-native\Libraries\BatchedBridge\MessageQueue.js)
+  callFunctionReturnFlushedQueue (node_modules\react-native\Libraries\BatchedBridge\MessageQueue.js)
+ INFO Launching DevTools...
+ LOG [DATABASE] Banco inicializado com sucesso
+ LOG [METAR] Sem chave API — usando dados simulados para SIXE
+
+ isso baseado no console do dev tools, como no terminal.
+
+ essa é a ~7 build, preciso ter certeza antes de testar se não vou ficar sem como buildar mais o mapa.
+ como prosseguir?

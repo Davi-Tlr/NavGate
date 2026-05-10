@@ -3,6 +3,7 @@ import { mapaService } from '../services/mapaService';
 
 export function useMapa() {
   const [aerodromos, setAerodromos] = useState<any>(null);
+  const [aerodromosComHeliportos, setAerodromosComHeliportos] = useState<any>(null);
   const [espacosAereos, setEspacosAereos] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -11,17 +12,17 @@ export function useMapa() {
     setLoading(true);
     setError(null);
     try {
-      // 1. Carrega aeródromos (local instantâneo)
-      const aeroGeoJSON = mapaService.getAerodromosGeoJSON();
-      setAerodromos(aeroGeoJSON);
+      // Sem heliportos (padrão)
+      const aeroSemHeli = mapaService.getAerodromosGeoJSON(false);
+      setAerodromos(aeroSemHeli);
 
-      // 2. Tenta buscar espaços aéreos (rede opcional)
+      // Com heliportos
+      const aeroComHeli = mapaService.getAerodromosGeoJSON(true);
+      setAerodromosComHeliportos(aeroComHeli);
+
       const airspaces = await mapaService.buscarEspacosAereos();
-      if (airspaces) {
-        setEspacosAereos(airspaces);
-      }
+      if (airspaces) setEspacosAereos(airspaces);
     } catch (err) {
-      console.error('[USE_MAPA] Falha ao carregar dados:', err);
       setError('Não foi possível carregar alguns dados do mapa.');
     } finally {
       setLoading(false);
@@ -32,11 +33,5 @@ export function useMapa() {
     carregarDadosMapa();
   }, [carregarDadosMapa]);
 
-  return {
-    aerodromos,
-    espacosAereos,
-    loading,
-    error,
-    recarregar: carregarDadosMapa
-  };
+  return { aerodromos, aerodromosComHeliportos, espacosAereos, loading, error, recarregar: carregarDadosMapa };
 }

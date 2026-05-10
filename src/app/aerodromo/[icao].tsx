@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Pressable, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { buscarPorIcao } from '@/features/aerodromos/services/aerodromoService';
 import { useFavoritos } from '@/features/favoritos/hooks/useFavoritos';
+
 
 const TIPO_LABEL: Record<string, string> = {
     large_airport: 'Aeroporto Internacional',
@@ -20,7 +21,15 @@ const TIPO_EMOJI: Record<string, string> = {
     seaplane_base: '🛥️',
 };
 
-// Componente reutilizável para cada linha de informação
+function tipoOperacao(tipo: string): string {
+    if (tipo === 'large_airport' || tipo === 'medium_airport') return 'VFR / IFR';
+    return 'VFR';
+}
+
+function provavelmenteTemMetar(icao: string): boolean {
+    return icao.startsWith('SB');
+}
+
 function LinhaInfo({ icone, label, valor }: {
     icone: React.ComponentProps<typeof Ionicons>['name'];
     label: string;
@@ -41,20 +50,29 @@ export default function DetalheAerodromoScreen() {
     const { icao } = useLocalSearchParams<{ icao: string }>();
     const router = useRouter();
     const aerodromo = buscarPorIcao(icao ?? '');
-    
     const { isFavorito, adicionarFavorito, removerFavorito } = useFavoritos();
+
     const favoritado = isFavorito(icao ?? '');
+    const temMetar = provavelmenteTemMetar(icao ?? '');
 
     const toggleFavorito = () => {
         if (!aerodromo) return;
-        if (favoritado) {
-            removerFavorito(aerodromo.icao);
-        } else {
-            adicionarFavorito(aerodromo);
-        }
+        if (favoritado) removerFavorito(aerodromo.icao);
+        else adicionarFavorito(aerodromo);
     };
 
-    // Aeródromo não encontrado — não deve acontecer, mas tratamos o caso
+    const verNoMapa = () => {
+        if (!aerodromo) return;
+        router.push({
+            pathname: '/(tabs)/mapa',
+            params: {
+                lat: String(aerodromo.latitude),
+                lng: String(aerodromo.longitude),
+                icao: aerodromo.icao,
+            },
+        });
+    };
+
     if (!aerodromo) {
         return (
             <View style={styles.erro}>
@@ -67,14 +85,16 @@ export default function DetalheAerodromoScreen() {
         );
     }
 
-    // Formata coordenadas para exibição legível
+    const verCartas = () => {
+        Linking.openURL(`https://aisweb.decea.mil.br/?i=cartas&icao=${aerodromo.icao}`);
+    };
+
     const latStr = `${Math.abs(aerodromo.latitude).toFixed(4)}° ${aerodromo.latitude >= 0 ? 'N' : 'S'}`;
     const lonStr = `${Math.abs(aerodromo.longitude).toFixed(4)}° ${aerodromo.longitude >= 0 ? 'L' : 'O'}`;
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
 
-            {/* Cabeçalho com ICAO e tipo */}
             <View style={styles.cabecalho}>
                 <Text style={styles.emoji}>{TIPO_EMOJI[aerodromo.tipo] ?? '✈️'}</Text>
                 <View style={styles.cabecalhoInfo}>
@@ -85,14 +105,12 @@ export default function DetalheAerodromoScreen() {
                                 <Text style={styles.iataTexto}>{aerodromo.iata}</Text>
                             </View>
                         ) : null}
-                        
                         <View style={{ flex: 1 }} />
-                        
                         <Pressable onPress={toggleFavorito} style={styles.botaoFavorito}>
-                            <Ionicons 
-                                name={favoritado ? "heart" : "heart-outline"} 
-                                size={28} 
-                                color={favoritado ? "#EF4444" : "#6B7280"} 
+                            <Ionicons
+                                name={favoritado ? "heart" : "heart-outline"}
+                                size={28}
+                                color={favoritado ? "#EF4444" : "#6B7280"}
                             />
                         </Pressable>
                     </View>
@@ -100,10 +118,8 @@ export default function DetalheAerodromoScreen() {
                 </View>
             </View>
 
-            {/* Nome completo */}
             <Text style={styles.nome}>{aerodromo.nome}</Text>
 
-            {/* Seção de informações */}
             <View style={styles.secao}>
                 <Text style={styles.secaoTitulo}>Localização</Text>
                 <LinhaInfo
@@ -121,22 +137,42 @@ export default function DetalheAerodromoScreen() {
                     label="Altitude"
                     valor={`${aerodromo.altitude_ft} ft  (${Math.round(aerodromo.altitude_ft * 0.3048)} m)`}
                 />
+                <LinhaInfo
+                    icone="airplane"
+                    label="Operação"
+                    valor={tipoOperacao(aerodromo.tipo)}
+                />
             </View>
 
-            {/* Botão METAR/TAF */}
+            {/* Botão METAR — desabilitado para aeródromos sem estação */}
             <TouchableOpacity
-                style={styles.botaoMetar}
-                activeOpacity={0.8}
-                onPress={() => router.push(`/metar/${aerodromo.icao}`)}
+                style={[styles.botaoMetar, !temMetar && styles.botaoDesabilitado]}
+                activeOpacity={temMetar ? 0.8 : 1}
+                onPress={() => temMetar && router.push(`/metar/${aerodromo.icao}`)}
             >
-                <Ionicons name="partly-sunny" size={20} color="#0a0f1e" />
-                <Text style={styles.botaoMetarTexto}>Ver METAR / TAF</Text>
+                <Ionicons
+                    name="partly-sunny"
+                    size={20}
+                    color={temMetar ? '#0a0f1e' : '#6B7280'}
+                />
+                <Text style={[styles.botaoMetarTexto, !temMetar && styles.textoBloqueado]}>
+                    {temMetar ? 'Ver METAR / TAF' : 'Sem estação meteorológica'}
+                </Text>
             </TouchableOpacity>
 
-            {/* Botão Ver no Mapa — vai ser ativado quando o mapa estiver pronto */}
-            <TouchableOpacity style={styles.botaoMapa} activeOpacity={0.8}>
+            {/* Botão Ver no Mapa */}
+            <TouchableOpacity style={styles.botaoMapa} activeOpacity={0.8} onPress={verNoMapa}>
                 <Ionicons name="map" size={20} color="#4A9EFF" />
                 <Text style={styles.botaoMapaTexto}>Ver no Mapa</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.botaoCartas}
+                activeOpacity={0.8}
+                onPress={verCartas}
+            >
+                <Ionicons name="document-text" size={20} color="#6B7280" />
+                <Text style={styles.botaoCartasTexto}>Ver Cartas no AISWEB</Text>
             </TouchableOpacity>
 
         </ScrollView>
@@ -144,97 +180,25 @@ export default function DetalheAerodromoScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#0a0f1e',
-    },
-    conteudo: {
-        padding: 20,
-        paddingBottom: 40,
-    },
-    cabecalho: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    emoji: {
-        fontSize: 40,
-        marginRight: 16,
-    },
-    cabecalhoInfo: {
-        flex: 1,
-    },
-    cabecalhoTopo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    icao: {
-        color: '#4A9EFF',
-        fontSize: 28,
-        fontWeight: 'bold',
-    },
-    iataBadge: {
-        backgroundColor: '#1a2035',
-        borderRadius: 6,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-    },
-    iataTexto: {
-        color: '#6B7280',
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    tipo: {
-        color: '#6B7280',
-        fontSize: 14,
-        marginTop: 2,
-    },
-    botaoFavorito: {
-        padding: 4,
-    },
-    nome: {
-        color: '#ffffff',
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 24,
-        lineHeight: 24,
-    },
-    secao: {
-        backgroundColor: '#1a2035',
-        borderRadius: 14,
-        padding: 16,
-        marginBottom: 12,
-    },
-    secaoTitulo: {
-        color: '#6B7280',
-        fontSize: 12,
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: 12,
-    },
-    linhaInfo: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginBottom: 12,
-    },
-    linhaIcone: {
-        marginRight: 12,
-        marginTop: 1,
-    },
-    linhaTexto: {
-        flex: 1,
-    },
-    linhaLabel: {
-        color: '#6B7280',
-        fontSize: 12,
-        marginBottom: 2,
-    },
-    linhaValor: {
-        color: '#ffffff',
-        fontSize: 15,
-    },
+    container: { flex: 1, backgroundColor: '#0a0f1e' },
+    conteudo: { padding: 20, paddingBottom: 40 },
+    cabecalho: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+    emoji: { fontSize: 40, marginRight: 16 },
+    cabecalhoInfo: { flex: 1 },
+    cabecalhoTopo: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    icao: { color: '#4A9EFF', fontSize: 28, fontWeight: 'bold' },
+    iataBadge: { backgroundColor: '#1a2035', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
+    iataTexto: { color: '#6B7280', fontSize: 13, fontWeight: '600' },
+    tipo: { color: '#6B7280', fontSize: 14, marginTop: 2 },
+    botaoFavorito: { padding: 4 },
+    nome: { color: '#ffffff', fontSize: 18, fontWeight: '600', marginBottom: 24, lineHeight: 24 },
+    secao: { backgroundColor: '#1a2035', borderRadius: 14, padding: 16, marginBottom: 12 },
+    secaoTitulo: { color: '#6B7280', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
+    linhaInfo: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
+    linhaIcone: { marginRight: 12, marginTop: 1 },
+    linhaTexto: { flex: 1 },
+    linhaLabel: { color: '#6B7280', fontSize: 12, marginBottom: 2 },
+    linhaValor: { color: '#ffffff', fontSize: 15 },
     botaoMetar: {
         backgroundColor: '#4A9EFF',
         borderRadius: 12,
@@ -246,11 +210,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginTop: 12,
     },
-    botaoMetarTexto: {
-        color: '#0a0f1e',
-        fontSize: 16,
-        fontWeight: 'bold',
+    botaoDesabilitado: {
+        backgroundColor: '#1a2035',
+        borderWidth: 1,
+        borderColor: '#2a3045',
     },
+    botaoMetarTexto: { color: '#0a0f1e', fontSize: 16, fontWeight: 'bold' },
+    textoBloqueado: { color: '#6B7280' },
     botaoMapa: {
         backgroundColor: '#1a2035',
         borderRadius: 12,
@@ -262,30 +228,27 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#4A9EFF',
     },
-    botaoMapaTexto: {
-        color: '#4A9EFF',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    erro: {
-        flex: 1,
-        backgroundColor: '#0a0f1e',
+    botaoMapaTexto: { color: '#4A9EFF', fontSize: 16, fontWeight: '600' },
+    erro: { flex: 1, backgroundColor: '#0a0f1e', alignItems: 'center', justifyContent: 'center', gap: 12 },
+    erroTexto: { color: '#ffffff', fontSize: 16 },
+    botaoVoltar: { backgroundColor: '#1a2035', borderRadius: 10, paddingHorizontal: 24, paddingVertical: 12 },
+    botaoVoltarTexto: { color: '#4A9EFF', fontSize: 15 },
+
+    botaoCartas: {
+        backgroundColor: '#1a2035',
+        borderRadius: 12,
+        padding: 16,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 12,
+        gap: 8,
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: '#2a3045',
     },
-    erroTexto: {
-        color: '#ffffff',
+    botaoCartasTexto: {
+        color: '#6B7280',
         fontSize: 16,
-    },
-    botaoVoltar: {
-        backgroundColor: '#1a2035',
-        borderRadius: 10,
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-    },
-    botaoVoltarTexto: {
-        color: '#4A9EFF',
-        fontSize: 15,
+        fontWeight: '600',
     },
 });

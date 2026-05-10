@@ -1,17 +1,15 @@
 import { parsearMetar } from './metarParser';
 
-// NOAA Aviation Weather Center — gratuito, sem chave, cobertura mundial
-// Documentação: https://aviationweather.gov/data/api/
 const BASE_URL = 'https://aviationweather.gov/api/data';
 
 interface NoaaMetarResponse {
   icaoId: string;
-  rawOb: string; // string METAR bruta — ex: "SBSP 061200Z 09010KT 9999 FEW030 25/18 Q1013"
+  rawOb: string;
 }
 
 interface NoaaTafResponse {
   icaoId: string;
-  rawTAF: string; // string TAF bruta
+  rawTAF: string;
 }
 
 export async function buscarMetar(icao: string) {
@@ -22,9 +20,20 @@ export async function buscarMetar(icao: string) {
     throw new Error(`NOAA retornou status ${response.status}`);
   }
 
-  const data = await response.json() as NoaaMetarResponse[];
-  const rawOb = data?.[0]?.rawOb;
+  // Lê como texto primeiro — resposta pode ser vazia ou não-JSON
+  const texto = await response.text();
+  if (!texto || texto.trim() === '' || texto.trim() === '[]') {
+    throw new Error('Nenhum METAR disponível para este aeródromo');
+  }
 
+  let data: NoaaMetarResponse[];
+  try {
+    data = JSON.parse(texto);
+  } catch {
+    throw new Error('Nenhum METAR disponível para este aeródromo');
+  }
+
+  const rawOb = data?.[0]?.rawOb;
   if (!rawOb) {
     throw new Error('Nenhum METAR disponível para este aeródromo');
   }
@@ -39,9 +48,16 @@ export async function buscarMetar(icao: string) {
 export async function buscarTaf(icao: string): Promise<string | null> {
   const url = `${BASE_URL}/taf?ids=${icao}&format=json`;
 
-  const response = await fetch(url);
-  if (!response.ok) return null;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
 
-  const data = await response.json() as NoaaTafResponse[];
-  return data?.[0]?.rawTAF ?? null;
+    const texto = await response.text();
+    if (!texto || texto.trim() === '' || texto.trim() === '[]') return null;
+
+    const data = JSON.parse(texto) as NoaaTafResponse[];
+    return data?.[0]?.rawTAF ?? null;
+  } catch {
+    return null;
+  }
 }
