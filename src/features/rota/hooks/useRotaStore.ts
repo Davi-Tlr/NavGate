@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Aerodromo } from '../../aerodromos/types';
 import { Waypoint, Rota } from '../types';
 import { calcularRota, rotaParaGeoJSON } from '../services/rotaService';
@@ -17,63 +19,76 @@ interface RotaState {
     renomearWaypoint: (id: string, novoLabel: string) => void;
 }
 
-export const useRotaStore = create<RotaState>((set, get) => ({
-    waypoints: [],
-    modoRota: false,
-    onboardingVisto: false,
+export const useRotaStore = create<RotaState>()(
+    persist(
+        (set) => ({
+            waypoints: [],
+            modoRota: false,
+            onboardingVisto: false,
 
-    adicionarAerodromo: (aerodromo) => {
-        set(state => {
-            const ultimo = state.waypoints[state.waypoints.length - 1];
-            if (ultimo?.aerodromo?.icao === aerodromo.icao) return state;
-            return {
-                waypoints: [
-                    ...state.waypoints,
-                    {
-                        id: `${aerodromo.icao}-${Date.now()}`,
-                        aerodromo,
-                        label: aerodromo.icao,
-                    }
-                ]
-            };
-        });
-    },
+            adicionarAerodromo: (aerodromo) => {
+                set(state => {
+                    const ultimo = state.waypoints[state.waypoints.length - 1];
+                    if (ultimo?.aerodromo?.icao === aerodromo.icao) return state;
+                    return {
+                        waypoints: [
+                            ...state.waypoints,
+                            {
+                                id: `${aerodromo.icao}-${Date.now()}`,
+                                aerodromo,
+                                label: aerodromo.icao,
+                            }
+                        ]
+                    };
+                });
+            },
 
-    adicionarPontoLivre: (coords) => {
-        set(state => {
-            const numero = state.waypoints.filter(w => !w.aerodromo).length + 1;
-            return {
-                waypoints: [
-                    ...state.waypoints,
-                    {
-                        id: `ponto-${Date.now()}`,
-                        coordenadas: coords,
-                        label: `Ponto ${numero}`,
-                    }
-                ]
-            };
-        });
-    },
+            adicionarPontoLivre: (coords) => {
+                set(state => {
+                    const numero = state.waypoints.filter(w => !w.aerodromo).length + 1;
+                    return {
+                        waypoints: [
+                            ...state.waypoints,
+                            {
+                                id: `ponto-${Date.now()}`,
+                                coordenadas: coords,
+                                label: `Ponto ${numero}`,
+                            }
+                        ]
+                    };
+                });
+            },
 
-    removerWaypoint: (id) => {
-        set(state => ({ waypoints: state.waypoints.filter(w => w.id !== id) }));
-    },
+            removerWaypoint: (id) => {
+                set(state => ({ waypoints: state.waypoints.filter(w => w.id !== id) }));
+            },
 
-    limparRota: () => set({ waypoints: [] }),
-    setModoRota: (ativo) => set({ modoRota: ativo }),
-    marcarOnboardingVisto: () => set({ onboardingVisto: true }),
+            limparRota: () => set({ waypoints: [] }),
+            setModoRota: (ativo) => set({ modoRota: ativo }),
+            marcarOnboardingVisto: () => set({ onboardingVisto: true }),
 
-    reordenarWaypoints: (waypoints: Waypoint[]) => set({ waypoints }),
+            reordenarWaypoints: (waypoints: Waypoint[]) => set({ waypoints }),
 
-    renomearWaypoint: (id: string, novoLabel: string) => {
-        set(state => ({
-            waypoints: state.waypoints.map(w =>
-                w.id === id ? { ...w, label: novoLabel } : w
-            )
-        }));
-    },
-}));
-
+            renomearWaypoint: (id: string, novoLabel: string) => {
+                set(state => ({
+                    waypoints: state.waypoints.map(w =>
+                        w.id === id ? { ...w, label: novoLabel } : w
+                    )
+                }));
+            },
+        }),
+        {
+            name: 'navgate-rota',
+            storage: createJSONStorage(() => AsyncStorage),
+            // Persiste só waypoints e onboardingVisto
+            // modoRota sempre começa desativado ao reabrir o app
+            partialize: (state) => ({
+                waypoints: state.waypoints,
+                onboardingVisto: state.onboardingVisto,
+            }),
+        }
+    )
+);
 
 export function useRota() {
     const store = useRotaStore();
