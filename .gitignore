@@ -44,3 +44,5 @@ yarn-error.*
 
 .claude/
 snapshot.txt
+
+arquivo-projeto/
