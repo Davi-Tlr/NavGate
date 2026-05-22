@@ -11,7 +11,7 @@ interface EstadoMetar {
 
 export function useMetar() {
     const [estado, setEstado] = useState<EstadoMetar>({
-        loading: false,
+        loading: true,
         metar: null,
         taf: null,
         erro: null,

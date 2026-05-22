@@ -1,362 +1,202 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Text, Animated } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { useEffect } from 'react';
+import {
+    View, Text, ScrollView, ActivityIndicator,
+    StyleSheet, TouchableOpacity
+} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import * as Location from 'expo-location';
-import { MapaBase } from '@/features/mapa/components/MapaBase';
-import { AerodromoPanel } from '@/features/mapa/components/AerodromoPanel';
-import { PainelCamadas, ConfigCamadas } from '@/features/mapa/components/PainelCamadas';
-import { PainelRota } from '@/features/rota/components/PainelRota';
-import { PerfilTerreno } from '@/features/rota/components/PerfilTerreno';
-import { useRota } from '@/features/rota/hooks/useRotaStore';
-import { mapaService } from '@/features/mapa/services/mapaService';
-import { buscarPorIcao } from '@/features/aerodromos/services/aerodromoService';
-import { Aerodromo } from '@/features/aerodromos/types';
+import { Ionicons } from '@expo/vector-icons';
+import { useMetar } from '@/features/metar/hooks/useMetar';
 
-const CONFIG_PADRAO: ConfigCamadas = {
-    espacosAereos: true,
-    wac: false,
-    rea: false,
-    aeroportos: true,
-    aerodromos: true,
-    heliportos: false,
-    hidroavioes: false,
-    satelite: false,
-};
+function grausParaDirecao(graus: number): string {
+    if (graus === 0) return 'Variável';
+    const dirs = ['N', 'NNE', 'NE', 'ENE', 'L', 'ESE', 'SE', 'SSE',
+        'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+    return dirs[Math.round(graus / 22.5) % 16];
+}
 
-export default function MapaScreen() {
-    const [espacosAereos, setEspacosAereos] = useState<any>(null);
-    const [selecionado, setSelecionado] = useState<Aerodromo | null>(null);
-    const [center, setCenter] = useState<[number, number]>([-51.9253, -14.2350]);
-    const [zoom, setZoom] = useState(4);
-    const [localizando, setLocalizando] = useState(false);
-    const [gpsNegado, setGpsNegado] = useState(false);
-    const [painelAberto, setPainelAberto] = useState(false);
-    const [painelRotaAberto, setPainelRotaAberto] = useState(false);
-    const [perfilAberto, setPerfilAberto] = useState(false);
-    const [config, setConfig] = useState<ConfigCamadas>(CONFIG_PADRAO);
-    const [mapHeight, setMapHeight] = useState(0);
-    const tooltipOpacity = useRef(new Animated.Value(0)).current;
-
-    const {
-        waypoints, rota, linhaGeoJSON, modoRota,
-        adicionarAerodromo, adicionarPontoLivre,
-        removerWaypoint, limparRota, setModoRota,
-        onboardingVisto, marcarOnboardingVisto,
-        reordenarWaypoints, renomearWaypoint,
-    } = useRota();
-
-    const params = useLocalSearchParams<{ lat?: string; lng?: string; icao?: string }>();
-
-    const aerodromosFiltrados = useMemo(
-        () => mapaService.getAerodromosGeoJSON({
-            aeroportos: config.aeroportos,
-            aerodromos: config.aerodromos,
-            heliportos: config.heliportos,
-            hidroavioes: config.hidroavioes,
-        }),
-        [config.aeroportos, config.aerodromos, config.heliportos, config.hidroavioes]
+function LinhaDetalhe({ icone, label, valor, cor }: {
+    icone: React.ComponentProps<typeof Ionicons>['name'];
+    label: string;
+    valor: string;
+    cor?: string;
+}) {
+    return (
+        <View style={styles.linhaDetalhe}>
+            <Ionicons name={icone} size={18} color="#4A9EFF" style={styles.linhaIcone} />
+            <View style={styles.linhaTexto}>
+                <Text style={styles.linhaLabel}>{label}</Text>
+                <Text style={[styles.linhaValor, cor ? { color: cor } : undefined]}>
+                    {valor}
+                </Text>
+            </View>
+        </View>
     );
+}
+
+export default function MetarScreen() {
+    const { icao } = useLocalSearchParams<{ icao: string }>();
+    const { loading, metar, taf, erro, buscar } = useMetar();
 
     useEffect(() => {
-        mapaService.buscarEspacosAereos().then(data => {
-            if (data) setEspacosAereos(data);
-        });
-    }, []);
+        if (icao) buscar(icao);
+    }, [icao]);
 
-    useEffect(() => {
-        if (params.lat && params.lng) {
-            const lat = parseFloat(params.lat);
-            const lng = parseFloat(params.lng);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                setCenter([lng, lat]);
-                setZoom(13);
-                if (params.icao) {
-                    const aerodromo = buscarPorIcao(params.icao);
-                    if (aerodromo) setSelecionado(aerodromo);
-                }
-            }
-        }
-    }, [params.lat, params.lng, params.icao]);
+    if (loading) {
+        return (
+            <View style={styles.centro}>
+                <ActivityIndicator size="large" color="#4A9EFF" />
+                <Text style={styles.carregandoTexto}>Buscando METAR...</Text>
+            </View>
+        );
+    }
 
-    useEffect(() => {
-        if (modoRota && !onboardingVisto) {
-            Animated.sequence([
-                Animated.timing(tooltipOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-                Animated.delay(3000),
-                Animated.timing(tooltipOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-            ]).start(() => marcarOnboardingVisto());
-        }
-    }, [modoRota]);
+    if (erro) {
+        const semConexao = erro.toLowerCase().includes('network') ||
+            erro.toLowerCase().includes('fetch') ||
+            erro.toLowerCase().includes('connection');
 
-    const handlePressAerodromo = (icao: string) => {
-        const aerodromo = buscarPorIcao(icao);
-        if (!aerodromo) return;
+        return (
+            <View style={styles.centro}>
+                <Ionicons
+                    name={semConexao ? 'wifi-outline' : 'cloud-offline'}
+                    size={48}
+                    color="#EF4444"
+                />
+                <Text style={styles.erroTexto}>
+                    {semConexao
+                        ? 'Sem conexão com a internet'
+                        : 'Nenhum METAR disponível para este aeródromo'}
+                </Text>
+                <Text style={styles.erroSub}>
+                    {semConexao
+                        ? 'Verifique sua conexão e tente novamente'
+                        : 'Este aeródromo pode não ter estação meteorológica ativa'}
+                </Text>
+                {semConexao && (
+                    <TouchableOpacity
+                        style={styles.botaoRetry}
+                        onPress={() => icao && buscar(icao)}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="refresh" size={16} color="#0a0f1e" />
+                        <Text style={styles.botaoRetryTexto}>Tentar novamente</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+        );
+    }
 
-        if (modoRota) {
-            // Bloqueia duplicado consecutivo com feedback
-            const ultimo = waypoints[waypoints.length - 1];
-            if (ultimo?.aerodromo?.icao === icao) {
-                Alert.alert(
-                    'Já adicionado',
-                    `${icao} já é o último ponto da rota. Adicione um destino diferente.`
-                );
-                return;
-            }
-            adicionarAerodromo(aerodromo);
-            setPainelRotaAberto(true);
-            return;
-        }
+    if (!metar) {
+        return <View style={{ flex: 1, backgroundColor: '#0a0f1e' }} />;
+    }
 
-        setSelecionado(aerodromo);
-    };
-
-    const handleLongPressAerodromo = (icao: string) => {
-        if (!modoRota) return;
-        const aerodromo = buscarPorIcao(icao);
-        if (aerodromo) {
-            const ultimo = waypoints[waypoints.length - 1];
-            if (ultimo?.aerodromo?.icao === icao) return;
-            adicionarAerodromo(aerodromo);
-            setPainelRotaAberto(true);
-        }
-    };
-
-    const handleLongPressMapa = (coords: [number, number]) => {
-        if (!modoRota) return;
-        adicionarPontoLivre(coords);
-        setPainelRotaAberto(true);
-    };
-
-    const handleVerNoMapa = (coords: [number, number]) => {
-        setPainelRotaAberto(false);
-        setCenter(coords);
-        setZoom(13);
-    };
-
-    const irParaMinhaLocalizacao = async () => {
-        if (gpsNegado) {
-            Alert.alert(
-                'Permissão negada',
-                'Vá em Configurações > Aplicativos > NavGate > Permissões e ative a localização.'
-            );
-            return;
-        }
-
-        setLocalizando(true);
-        try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setGpsNegado(true);
-                return;
-            }
-            setGpsNegado(false);
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.Balanced,
-            });
-            setCenter([location.coords.longitude, location.coords.latitude]);
-            setZoom(13);
-        } catch {
-            Alert.alert('Erro', 'Não foi possível obter sua localização.');
-        } finally {
-            setLocalizando(false);
-        }
-    };
-
-    const toggleModoRota = () => {
-        if (modoRota) {
-            setPainelRotaAberto(true);
-        } else {
-            setModoRota(true);
-            setSelecionado(null);
-            setPainelRotaAberto(true);
-        }
-    };
+    const ventoTexto = metar.vento_velocidade === 0
+        ? 'Calmaria'
+        : `${grausParaDirecao(metar.vento_direcao)} (${metar.vento_direcao}°) — ${metar.vento_velocidade} kt${metar.vento_rajada ? ` (rajadas ${metar.vento_rajada} kt)` : ''}`;
 
     return (
-        <View
-            style={styles.container}
-            onLayout={e => setMapHeight(e.nativeEvent.layout.height)}
-        >
-            <MapaBase
-                center={center}
-                zoom={zoom}
-                aerodromos={aerodromosFiltrados}
-                espacosAereos={espacosAereos}
-                linhaRota={linhaGeoJSON}
-                mostrarEspacosAereos={config.espacosAereos}
-                mostrarWac={config.wac}
-                mostrarRea={config.rea}
-                satelite={config.satelite}
-                onPressAerodromo={handlePressAerodromo}
-                onLongPressAerodromo={handleLongPressAerodromo}
-                onLongPressMapa={handleLongPressMapa}
-            />
+        <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
+            <View style={[styles.condicaoCard, { borderColor: metar.cor_condicao }]}>
+                <View style={[styles.condicaoBadge, { backgroundColor: metar.cor_condicao }]}>
+                    <Text style={styles.condicaoTexto}>{metar.condicao}</Text>
+                </View>
+                <Text style={styles.condicaoIcao}>{metar.icao}</Text>
+                <Text style={styles.condicaoHora}>Atualizado às {metar.hora}</Text>
+            </View>
 
-            {modoRota && (
-                <Animated.View style={[styles.tooltip, { opacity: tooltipOpacity }]}>
-                    <Ionicons name="hand-left-outline" size={16} color="#22C55E" />
-                    <Text style={styles.tooltipTexto}>
-                        Toque em um aeródromo ou segure no mapa para adicionar à rota
-                    </Text>
-                </Animated.View>
-            )}
-
-            {modoRota && (
-                <TouchableOpacity
-                    style={styles.botaoDesativarRota}
-                    onPress={() => setModoRota(false)}
-                    activeOpacity={0.8}
-                >
-                    <Ionicons name="close" size={16} color="#EF4444" />
-                    <Text style={styles.botaoDesativarRotaTexto}>Sair da Rota</Text>
-                </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-                style={[styles.botaoRota, modoRota && styles.botaoRotaAtivo]}
-                onPress={toggleModoRota}
-                activeOpacity={0.8}
-            >
-                <Ionicons name="git-branch" size={22} color={modoRota ? '#0a0f1e' : '#22C55E'} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.botaoCamadas}
-                onPress={() => setPainelAberto(true)}
-                activeOpacity={0.8}
-            >
-                <Ionicons name="layers" size={22} color="#4A9EFF" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={[styles.botaoGps, gpsNegado && styles.botaoGpsNegado]}
-                onPress={irParaMinhaLocalizacao}
-                activeOpacity={0.8}
-                disabled={localizando}
-            >
-                {localizando ? (
-                    <ActivityIndicator size="small" color="#4A9EFF" />
-                ) : (
-                    <Ionicons
-                        name={gpsNegado ? 'locate-outline' : 'locate'}
-                        size={22}
-                        color={gpsNegado ? '#EF4444' : '#4A9EFF'}
-                    />
-                )}
-            </TouchableOpacity>
-
-            {selecionado && !modoRota && (
-                <AerodromoPanel
-                    aerodromo={selecionado}
-                    onFechar={() => setSelecionado(null)}
+            <View style={styles.secao}>
+                <Text style={styles.secaoTitulo}>Condições Atuais</Text>
+                <LinhaDetalhe icone="navigate" label="Vento" valor={ventoTexto} />
+                <LinhaDetalhe icone="eye" label="Visibilidade" valor={metar.visibilidade} />
+                <LinhaDetalhe icone="cloud" label="Nuvens" valor={metar.nuvens} />
+                <LinhaDetalhe
+                    icone="thermometer"
+                    label="Temperatura / Orvalho"
+                    valor={`${metar.temperatura}°C / ${metar.ponto_orvalho}°C`}
                 />
-            )}
+                <LinhaDetalhe icone="speedometer" label="QNH" valor={`${metar.qnh} hPa`} />
+            </View>
 
-            {painelAberto && (
-                <PainelCamadas
-                    config={config}
-                    onChange={setConfig}
-                    onFechar={() => setPainelAberto(false)}
-                />
-            )}
+            <View style={styles.secao}>
+                <Text style={styles.secaoTitulo}>Mensagem Original</Text>
+                <View style={styles.rawContainer}>
+                    <Text style={styles.rawTexto}>{metar.raw}</Text>
+                </View>
+            </View>
 
-            {painelRotaAberto && mapHeight > 0 && (
-                <PainelRota
-                    waypoints={waypoints}
-                    rota={rota}
-                    mapHeight={mapHeight}
-                    onRemover={removerWaypoint}
-                    onLimpar={limparRota}
-                    onFechar={() => setPainelRotaAberto(false)}
-                    onReordenar={reordenarWaypoints}
-                    onRenomear={renomearWaypoint}
-                    onVerPerfil={() => {
-                        setPainelRotaAberto(false);
-                        setPerfilAberto(true);
-                    }}
-                    onVerNoMapa={handleVerNoMapa}
-                />
+            {taf && (
+                <View style={styles.secao}>
+                    <Text style={styles.secaoTitulo}>TAF — Previsão</Text>
+                    <View style={styles.rawContainer}>
+                        <Text style={styles.rawTexto}>{taf}</Text>
+                    </View>
+                </View>
             )}
-
-            {perfilAberto && waypoints.length >= 2 && (
-                <PerfilTerreno
-                    waypoints={waypoints}
-                    onFechar={() => setPerfilAberto(false)}
-                />
-            )}
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#0a0f1e' },
-    tooltip: {
-        position: 'absolute',
-        top: 16, left: 16, right: 72,
+    conteudo: { padding: 20, paddingBottom: 40 },
+    centro: {
+        flex: 1,
+        backgroundColor: '#0a0f1e',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        padding: 24,
+    },
+    carregandoTexto: { color: '#6B7280', fontSize: 14 },
+    erroTexto: { color: '#EF4444', fontSize: 16, textAlign: 'center' },
+    erroSub: { color: '#6B7280', fontSize: 13, textAlign: 'center' },
+    botaoRetry: {
+        marginTop: 8,
+        backgroundColor: '#4A9EFF',
+        borderRadius: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        backgroundColor: '#0a2010',
-        borderRadius: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: '#22C55E',
     },
-    tooltipTexto: { color: '#22C55E', fontSize: 13, flex: 1, lineHeight: 18 },
-    botaoDesativarRota: {
-        position: 'absolute',
-        top: 16, right: 16,
-        flexDirection: 'row',
+    botaoRetryTexto: { color: '#0a0f1e', fontSize: 14, fontWeight: '700' },
+    condicaoCard: {
+        borderRadius: 14,
+        borderWidth: 2,
+        padding: 16,
         alignItems: 'center',
-        gap: 6,
-        backgroundColor: '#1a0505',
+        marginBottom: 16,
+        backgroundColor: '#1a2035',
+    },
+    condicaoBadge: {
         borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderWidth: 1,
-        borderColor: '#EF4444',
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        marginBottom: 8,
     },
-    botaoDesativarRotaTexto: { color: '#EF4444', fontSize: 13, fontWeight: '600' },
-    botaoRota: {
-        position: 'absolute',
-        bottom: 220, right: 16,
-        width: 48, height: 48,
-        borderRadius: 24,
+    condicaoTexto: { color: '#ffffff', fontWeight: 'bold', fontSize: 18 },
+    condicaoIcao: { color: '#ffffff', fontSize: 22, fontWeight: 'bold' },
+    condicaoHora: { color: '#6B7280', fontSize: 13, marginTop: 4 },
+    secao: {
         backgroundColor: '#1a2035',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: '#22C55E',
-        elevation: 4,
+        borderRadius: 14,
+        padding: 16,
+        marginBottom: 12,
     },
-    botaoRotaAtivo: { backgroundColor: '#22C55E' },
-    botaoCamadas: {
-        position: 'absolute',
-        bottom: 160, right: 16,
-        width: 48, height: 48,
-        borderRadius: 24,
-        backgroundColor: '#1a2035',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: '#4A9EFF',
-        elevation: 4,
+    secaoTitulo: {
+        color: '#6B7280',
+        fontSize: 12,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 12,
     },
-    botaoGps: {
-        position: 'absolute',
-        bottom: 100, right: 16,
-        width: 48, height: 48,
-        borderRadius: 24,
-        backgroundColor: '#1a2035',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: '#4A9EFF',
-        elevation: 4,
-    },
-    botaoGpsNegado: {
-        borderColor: '#EF4444',
-    },
+    linhaDetalhe: { flexDirection: 'row', marginBottom: 12 },
+    linhaIcone: { marginRight: 12, marginTop: 1 },
+    linhaTexto: { flex: 1 },
+    linhaLabel: { color: '#6B7280', fontSize: 12, marginBottom: 2 },
+    linhaValor: { color: '#ffffff', fontSize: 15 },
+    rawContainer: { backgroundColor: '#0a0f1e', borderRadius: 8, padding: 12 },
+    rawTexto: { color: '#4A9EFF', fontSize: 13, fontFamily: 'monospace', lineHeight: 20 },
 });
