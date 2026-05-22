@@ -24,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "n": "com.navgate.app.dev",
+      "package": "com.navgate.app",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
@@ -42,7 +42,8 @@
           "locationAlwaysAndWhenInUsePermission": "O NavGate precisa da sua localização para exibir sua posição no mapa."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-router"
     ],
     "extra": {
       "router": {},

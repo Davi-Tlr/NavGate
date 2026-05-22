@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import {
     View, Text, StyleSheet, Animated,
-    TouchableWithoutFeedback, Switch, ScrollView, Pressable
+    Switch, ScrollView, Pressable, PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -13,6 +13,7 @@ export interface ConfigCamadas {
     aerodromos: boolean;
     heliportos: boolean;
     hidroavioes: boolean;
+    satelite: boolean;
 }
 
 interface PainelCamadasProps {
@@ -40,8 +41,10 @@ function ItemToggle({ label, valor, onChange }: {
 }
 
 export function PainelCamadas({ config, onChange, onFechar }: PainelCamadasProps) {
-    const slideAnim = useRef(new Animated.Value(500)).current;
+    const slideAnim = useRef(new Animated.Value(600)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const dragOffset = useRef(new Animated.Value(0)).current;
+    const currentDrag = useRef(0);
 
     useEffect(() => {
         Animated.parallel([
@@ -52,32 +55,86 @@ export function PainelCamadas({ config, onChange, onFechar }: PainelCamadasProps
 
     const fechar = () => {
         Animated.parallel([
-            Animated.timing(slideAnim, { toValue: 500, duration: 200, useNativeDriver: true }),
+            Animated.timing(slideAnim, { toValue: 600, duration: 200, useNativeDriver: true }),
             Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
         ]).start(() => onFechar());
     };
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 4,
+
+            onPanResponderGrant: () => {
+                dragOffset.setValue(0);
+                currentDrag.current = 0;
+            },
+
+            onPanResponderMove: (_, g) => {
+                // Só permite arrastar pra baixo
+                const dy = Math.max(0, g.dy);
+                currentDrag.current = dy;
+                dragOffset.setValue(dy);
+            },
+
+            onPanResponderRelease: (_, g) => {
+                const dy = Math.max(0, g.dy);
+                const velocidadeParaBaixo = g.vy > 0.8;
+
+                if (dy > 100 || velocidadeParaBaixo) {
+                    // Fecha com animação
+                    fechar();
+                } else {
+                    // Volta para posição original
+                    Animated.spring(dragOffset, {
+                        toValue: 0,
+                        useNativeDriver: true,
+                        bounciness: 4,
+                    }).start();
+                }
+            },
+        })
+    ).current;
 
     const set = (key: keyof ConfigCamadas) => (value: boolean) => {
         onChange({ ...config, [key]: value });
     };
 
+    // Combina a animação de entrada com o drag
+    const translateY = Animated.add(slideAnim, dragOffset);
+
     return (
         <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-            <TouchableWithoutFeedback onPress={fechar}>
-                <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} />
-            </TouchableWithoutFeedback>
+            {/* Backdrop */}
+            <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} pointerEvents="auto">
+                <Pressable style={StyleSheet.absoluteFill} onPress={fechar} />
+            </Animated.View>
 
-            <Animated.View style={[styles.painel, { transform: [{ translateY: slideAnim }] }]}>
-                <View style={styles.handle} />
-
-                <View style={styles.cabecalho}>
-                    <Text style={styles.titulo}>Camadas do Mapa</Text>
-                    <Pressable onPress={fechar} hitSlop={8}>
-                        <Ionicons name="close" size={22} color="#6B7280" />
-                    </Pressable>
+            {/* Painel */}
+            <Animated.View
+                style={[styles.painel, { transform: [{ translateY }] }]}
+                pointerEvents="auto"
+            >
+                {/* Handle arrastável */}
+                <View style={styles.handleArea} {...panResponder.panHandlers}>
+                    <View style={styles.handle} />
+                    <View style={styles.cabecalho}>
+                        <Text style={styles.titulo}>Camadas do Mapa</Text>
+                        <Pressable onPress={fechar} hitSlop={12}>
+                            <Ionicons name="close" size={22} color="#6B7280" />
+                        </Pressable>
+                    </View>
                 </View>
 
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <Text style={styles.secaoTitulo}>MAPA BASE</Text>
+                    <ItemToggle label="Satélite (Esri)" valor={config.satelite} onChange={set('satelite')} />
+
+                    <View style={styles.separador} />
 
                     <Text style={styles.secaoTitulo}>CARTAS AERONÁUTICAS</Text>
                     <ItemToggle label="WAC — Carta Mundial" valor={config.wac} onChange={set('wac')} />
@@ -95,7 +152,6 @@ export function PainelCamadas({ config, onChange, onFechar }: PainelCamadasProps
                     <ItemToggle label="Aeródromos (pequeno)" valor={config.aerodromos} onChange={set('aerodromos')} />
                     <ItemToggle label="Heliportos" valor={config.heliportos} onChange={set('heliportos')} />
                     <ItemToggle label="Bases de Hidroaviões" valor={config.hidroavioes} onChange={set('hidroavioes')} />
-
                 </ScrollView>
             </Animated.View>
         </View>
@@ -109,57 +165,38 @@ const styles = StyleSheet.create({
     },
     painel: {
         position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: 0, left: 0, right: 0,
         backgroundColor: '#1a2035',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        padding: 20,
-        paddingBottom: 40,
         maxHeight: '75%',
+        paddingBottom: 40,
+    },
+    handleArea: {
+        paddingHorizontal: 20,
+        paddingTop: 12,
+        paddingBottom: 4,
     },
     handle: {
-        width: 40,
-        height: 4,
-        backgroundColor: '#6B7280',
-        borderRadius: 2,
-        alignSelf: 'center',
-        marginBottom: 16,
-        opacity: 0.5,
+        width: 40, height: 4, backgroundColor: '#6B7280',
+        borderRadius: 2, alignSelf: 'center', marginBottom: 12, opacity: 0.5,
     },
     cabecalho: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        paddingBottom: 8,
     },
-    titulo: {
-        color: '#ffffff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
+    titulo: { color: '#ffffff', fontSize: 18, fontWeight: 'bold' },
+    scrollContent: { paddingHorizontal: 20, paddingBottom: 8 },
     secaoTitulo: {
-        color: '#6B7280',
-        fontSize: 11,
-        fontWeight: '600',
-        letterSpacing: 1,
-        marginBottom: 8,
-        marginTop: 4,
+        color: '#6B7280', fontSize: 11, fontWeight: '600',
+        letterSpacing: 1, marginBottom: 8, marginTop: 4,
     },
     item: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10,
+        flexDirection: 'row', justifyContent: 'space-between',
+        alignItems: 'center', paddingVertical: 12,
     },
-    itemLabel: {
-        color: '#ffffff',
-        fontSize: 15,
-    },
-    separador: {
-        height: 1,
-        backgroundColor: '#2a3045',
-        marginVertical: 12,
-    },
+    itemLabel: { color: '#ffffff', fontSize: 15 },
+    separador: { height: 1, backgroundColor: '#2a3045', marginVertical: 8 },
 });

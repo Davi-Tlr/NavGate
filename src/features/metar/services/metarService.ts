@@ -41,7 +41,6 @@ export async function buscarMetar(icao: string) {
   return {
     processado: parsearMetar(rawOb, icao),
     raw: rawOb,
-    isMock: false,
   };
 }
 

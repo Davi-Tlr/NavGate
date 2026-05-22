@@ -11,8 +11,6 @@ import { useAerodromos } from '@/features/aerodromos/hooks/useAerodromos';
 import { Aerodromo } from '@/features/aerodromos/types';
 import { useRouter } from 'expo-router';
 
-// Mapa de emojis por tipo de aeródromo
-// Fica fora do componente para não ser recriado a cada render
 const TIPO_EMOJI: Record<Aerodromo['tipo'], string> = {
   large_airport: '✈️',
   medium_airport: '🛫',
@@ -23,7 +21,6 @@ const TIPO_EMOJI: Record<Aerodromo['tipo'], string> = {
 
 function CardAerodromo({ item }: { item: Aerodromo }) {
   const router = useRouter();
-
   return (
     <TouchableOpacity
       style={styles.card}
@@ -51,8 +48,6 @@ export default function BuscaScreen() {
 
   return (
     <View style={styles.container}>
-
-      {/* Campo de busca */}
       <View style={styles.inputContainer}>
         <Ionicons name="search" size={20} color="#6B7280" style={styles.inputIcon} />
         <TextInput
@@ -71,9 +66,7 @@ export default function BuscaScreen() {
         )}
       </View>
 
-      {/* Três estados possíveis da tela */}
       {temResultados ? (
-        // Estado 1: há resultados — mostra a lista
         <FlatList
           data={resultados}
           keyExtractor={item => item.icao}
@@ -82,13 +75,18 @@ export default function BuscaScreen() {
           keyboardShouldPersistTaps="handled"
         />
       ) : termo.length >= 2 ? (
-        // Estado 2: buscou mas não encontrou
         <View style={styles.vazio}>
-          <Ionicons name="search" size={48} color="#1a2035" />
-          <Text style={styles.vazioTexto}>Nenhum aeródromo encontrado</Text>
+          <Ionicons name="search-outline" size={48} color="#1a2035" />
+          <Text style={styles.vazioTitulo}>Nenhum resultado</Text>
+          <Text style={styles.vazioTexto}>
+            Não encontramos aeródromo para{'\n'}
+            <Text style={styles.vazioTermoDest}>"{termo}"</Text>
+          </Text>
+          <Text style={styles.vazioSugestao}>
+            Tente o código ICAO (ex: SIXE) ou o nome da cidade
+          </Text>
         </View>
       ) : (
-        // Estado 3: ainda não digitou nada
         <View style={styles.vazio}>
           <Ionicons name="airplane" size={48} color="#1a2035" />
           <Text style={styles.vazioTexto}>
@@ -96,7 +94,6 @@ export default function BuscaScreen() {
           </Text>
         </View>
       )}
-
     </View>
   );
 }
@@ -145,11 +142,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 10,
+  },
+  vazioTitulo: {
+    color: '#ffffff',
+    fontSize: 17,
+    fontWeight: '600',
   },
   vazioTexto: {
     color: '#6B7280',
     fontSize: 14,
     textAlign: 'center',
+    lineHeight: 22,
+  },
+  vazioTermoDest: {
+    color: '#4A9EFF',
+    fontWeight: '600',
+  },
+  vazioSugestao: {
+    color: '#6B7280',
+    fontSize: 12,
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

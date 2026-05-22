@@ -1,11 +1,11 @@
 export interface Aerodromo {
     icao: string;
+    iata?: string;
     nome: string;
-    tipo: 'large_airport' | 'medium_airport' | 'small_airport' | 'heliport' | 'seaplane_base';
+    tipo: string;
+    municipio: string;
+    regiao: string;
     latitude: number;
     longitude: number;
     altitude_ft: number;
-    municipio: string;
-    regiao: string;
-    iata: string;
 }

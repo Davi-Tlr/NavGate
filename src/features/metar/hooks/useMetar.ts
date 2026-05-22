@@ -7,7 +7,6 @@ interface EstadoMetar {
     metar: MetarProcessado | null;
     taf: string | null;
     erro: string | null;
-    isMock: boolean;
 }
 
 export function useMetar() {
@@ -16,7 +15,6 @@ export function useMetar() {
         metar: null,
         taf: null,
         erro: null,
-        isMock: false,
     });
 
     const buscar = useCallback(async (icao: string) => {
@@ -33,7 +31,6 @@ export function useMetar() {
                 metar: resultadoMetar.processado,
                 taf: tafRaw,
                 erro: null,
-                isMock: resultadoMetar.isMock,
             });
         } catch (e) {
             const mensagem = e instanceof Error ? e.message : 'Erro desconhecido';

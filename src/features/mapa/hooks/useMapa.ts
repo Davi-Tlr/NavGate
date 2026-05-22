@@ -13,11 +13,21 @@ export function useMapa() {
     setError(null);
     try {
       // Sem heliportos (padrão)
-      const aeroSemHeli = mapaService.getAerodromosGeoJSON(false);
+      const aeroSemHeli = mapaService.getAerodromosGeoJSON({
+        aeroportos: true,
+        aerodromos: true,
+        heliportos: false,
+        hidroavioes: false,
+      });
       setAerodromos(aeroSemHeli);
 
       // Com heliportos
-      const aeroComHeli = mapaService.getAerodromosGeoJSON(true);
+      const aeroComHeli = mapaService.getAerodromosGeoJSON({
+        aeroportos: true,
+        aerodromos: true,
+        heliportos: true,
+        hidroavioes: false,
+      });
       setAerodromosComHeliportos(aeroComHeli);
 
       const airspaces = await mapaService.buscarEspacosAereos();

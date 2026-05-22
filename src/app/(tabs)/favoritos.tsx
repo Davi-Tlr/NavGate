@@ -46,6 +46,7 @@ function CardFavorito({ item }: { item: Aerodromo }) {
 
 export default function FavoritosScreen() {
   const { favoritos, isLoading } = useFavoritos();
+  const router = useRouter();
 
   if (isLoading && favoritos.length === 0) {
     return (
@@ -73,6 +74,14 @@ export default function FavoritosScreen() {
           <Text style={styles.vazioTexto}>
             Toque no coração na tela de detalhes{'\n'}de um aeródromo para salvá-lo aqui.
           </Text>
+          <TouchableOpacity
+            style={styles.botaoVazio}
+            activeOpacity={0.8}
+            onPress={() => router.push('/')}
+          >
+            <Ionicons name="search" size={18} color="#0a0f1e" />
+            <Text style={styles.botaoVazioTexto}>Buscar aerodromo</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -131,5 +140,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  botaoVazio: {
+    marginTop: 4,
+    backgroundColor: '#4A9EFF',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  botaoVazioTexto: {
+    color: '#0a0f1e',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

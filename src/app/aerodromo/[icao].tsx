@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { buscarPorIcao } from '@/features/aerodromos/services/aerodromoService';
 import { useFavoritos } from '@/features/favoritos/hooks/useFavoritos';
-
+import { useRotaStore } from '@/features/rota/hooks/useRotaStore';
 
 const TIPO_LABEL: Record<string, string> = {
     large_airport: 'Aeroporto Internacional',
@@ -51,6 +51,7 @@ export default function DetalheAerodromoScreen() {
     const router = useRouter();
     const aerodromo = buscarPorIcao(icao ?? '');
     const { isFavorito, adicionarFavorito, removerFavorito } = useFavoritos();
+    const { modoRota, adicionarAerodromo, setModoRota } = useRotaStore();
 
     const favoritado = isFavorito(icao ?? '');
     const temMetar = provavelmenteTemMetar(icao ?? '');
@@ -165,6 +166,18 @@ export default function DetalheAerodromoScreen() {
                 <Ionicons name="map" size={20} color="#4A9EFF" />
                 <Text style={styles.botaoMapaTexto}>Ver no Mapa</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.botaoAdicionarRota}
+                activeOpacity={0.8}
+                onPress={() => {
+                    if (!modoRota) setModoRota(true);
+                    adicionarAerodromo(aerodromo);
+                    router.push('/(tabs)/mapa');
+                }}
+            >
+                <Ionicons name="git-branch" size={20} color="#22C55E" />
+                <Text style={styles.botaoAdicionarRotaTexto}>Adicionar a Rota</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
                 style={styles.botaoCartas}
@@ -248,6 +261,23 @@ const styles = StyleSheet.create({
     },
     botaoCartasTexto: {
         color: '#6B7280',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    botaoAdicionarRota: {
+        backgroundColor: '#0a2010',
+        borderRadius: 12,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: '#22C55E',
+    },
+    botaoAdicionarRotaTexto: {
+        color: '#22C55E',
         fontSize: 16,
         fontWeight: '600',
     },
