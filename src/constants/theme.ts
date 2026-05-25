@@ -1,0 +1,16 @@
+export const colors = {
+    background: '#0a0f1e',
+    surface: '#1a2035',
+    border: '#2a3045',
+    primary: '#4A9EFF',
+    success: '#22C55E',
+    danger: '#EF4444',
+    textPrimary: '#ffffff',
+    textMuted: '#6B7280',
+    overlayGreen: '#0a2010',
+    overlayRed: '#1a0505',
+    condMvfr: '#3B82F6',
+    condLifr: '#A855F7',
+    mapAirspace: '#00bfff',
+    mapAerodrome: '#00e5ff',
+} as const;

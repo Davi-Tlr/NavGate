@@ -1,4 +1,5 @@
 import { Waypoint, TrechoRota, Rota } from '../types';
+import { getCoordsWaypoint } from '../utils';
 
 const RAIO_TERRA_NM = 3440.065;
 
@@ -28,12 +29,6 @@ export function calcularRumoVerdadeiro(
     return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
 }
 
-function getCoordsWaypoint(wp: Waypoint): [number, number] {
-    if (wp.aerodromo) return [wp.aerodromo.latitude, wp.aerodromo.longitude];
-    if (wp.coordenadas) return [wp.coordenadas[1], wp.coordenadas[0]]; // [lat, lng]
-    return [0, 0];
-}
-
 export function calcularRota(waypoints: Waypoint[]): Rota {
     const trechos: TrechoRota[] = [];
 
@@ -58,7 +53,13 @@ export function calcularRota(waypoints: Waypoint[]): Rota {
     };
 }
 
-export function rotaParaGeoJSON(waypoints: Waypoint[]) {
+export interface RotaFeature {
+    type: 'Feature';
+    geometry: { type: 'LineString'; coordinates: number[][] };
+    properties: Record<string, never>;
+}
+
+export function rotaParaGeoJSON(waypoints: Waypoint[]): RotaFeature | null {
     if (waypoints.length < 2) return null;
     return {
         type: 'Feature',

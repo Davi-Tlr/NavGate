@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Rota } from '../types';
+import { colors } from '@/constants/theme';
 
 interface CalculoVooProps {
     rota: Rota;
@@ -25,12 +26,10 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
     const consumoNum = parseFloat(consumo);
     const temVelocidade = velocidadeNum > 0;
 
-    // Calcula tempo total em minutos
     const tempoTotalMin = temVelocidade
         ? (rota.distanciaTotalNM / velocidadeNum) * 60
         : 0;
 
-    // Formata tempo
     const formatarTempo = (minutos: number) => {
         const h = Math.floor(minutos / 60);
         const m = Math.round(minutos % 60);
@@ -38,7 +37,6 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
         return `${h}h ${m.toString().padStart(2, '0')}min`;
     };
 
-    // Calcula ETA
     const calcularETA = () => {
         if (!temVelocidade || !horaSaida) return null;
         const [h, m] = horaSaida.split(':').map(Number);
@@ -49,12 +47,10 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
         return `${etaH.toString().padStart(2, '0')}:${etaM.toString().padStart(2, '0')}`;
     };
 
-    // Combustível total
     const combustivelTotal = temVelocidade && consumoNum > 0
         ? (tempoTotalMin / 60) * consumoNum
         : null;
 
-    // Tempos por trecho
     const trechosComTempo = temVelocidade
         ? rota.trechos.map(t => ({
             ...t,
@@ -83,7 +79,7 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                     <View style={styles.headerRow}>
                         <Text style={styles.titulo}>Calcular Voo</Text>
                         <TouchableOpacity onPress={onFechar} hitSlop={8}>
-                            <Ionicons name="close" size={22} color="#6B7280" />
+                            <Ionicons name="close" size={22} color={colors.textMuted} />
                         </TouchableOpacity>
                     </View>
 
@@ -91,7 +87,6 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
-                        {/* Campos */}
                         <View style={styles.campos}>
                             <View style={styles.campo}>
                                 <Text style={styles.campoLabel}>Velocidade de cruzeiro</Text>
@@ -102,7 +97,7 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                         onChangeText={setVelocidade}
                                         keyboardType="numeric"
                                         placeholder="ex: 90"
-                                        placeholderTextColor="#6B7280"
+                                        placeholderTextColor={colors.textMuted}
                                         maxLength={4}
                                     />
                                     <Text style={styles.unidade}>kt</Text>
@@ -118,7 +113,7 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                         onChangeText={setConsumo}
                                         keyboardType="numeric"
                                         placeholder="ex: 20"
-                                        placeholderTextColor="#6B7280"
+                                        placeholderTextColor={colors.textMuted}
                                         maxLength={4}
                                     />
                                     <Text style={styles.unidade}>L/h</Text>
@@ -134,7 +129,7 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                         onChangeText={setHoraSaida}
                                         keyboardType="numbers-and-punctuation"
                                         placeholder="09:00"
-                                        placeholderTextColor="#6B7280"
+                                        placeholderTextColor={colors.textMuted}
                                         maxLength={5}
                                     />
                                     <Text style={styles.unidade}>UTC-3</Text>
@@ -142,7 +137,6 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                             </View>
                         </View>
 
-                        {/* Resultado */}
                         {temVelocidade && (
                             <>
                                 <View style={styles.separador} />
@@ -167,14 +161,13 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                     {eta && (
                                         <View style={styles.resultadoItem}>
                                             <Text style={styles.resultadoLabel}>ETA</Text>
-                                            <Text style={[styles.resultadoValor, { color: '#22C55E' }]}>
+                                            <Text style={[styles.resultadoValor, { color: colors.success }]}>
                                                 {eta}
                                             </Text>
                                         </View>
                                     )}
                                 </View>
 
-                                {/* Trechos */}
                                 {trechosComTempo.length > 0 && (
                                     <>
                                         <View style={styles.separador} />
@@ -204,7 +197,7 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
 
                         {!temVelocidade && (
                             <View style={styles.dica}>
-                                <Ionicons name="information-circle-outline" size={20} color="#6B7280" />
+                                <Ionicons name="information-circle-outline" size={20} color={colors.textMuted} />
                                 <Text style={styles.dicaTexto}>
                                     Digite a velocidade de cruzeiro para calcular
                                 </Text>
@@ -227,7 +220,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
     sheet: {
-        backgroundColor: '#1a2035',
+        backgroundColor: colors.surface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         paddingHorizontal: 20,
@@ -237,7 +230,7 @@ const styles = StyleSheet.create({
     handle: {
         width: 40,
         height: 4,
-        backgroundColor: '#6B7280',
+        backgroundColor: colors.textMuted,
         borderRadius: 2,
         alignSelf: 'center',
         marginTop: 12,
@@ -251,7 +244,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     titulo: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 17,
         fontWeight: 'bold',
     },
@@ -262,41 +255,41 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     campoLabel: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 14,
         fontWeight: '600',
     },
     opcional: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontWeight: '400',
         fontSize: 13,
     },
     campoInput: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#0a0f1e',
+        backgroundColor: colors.background,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: '#2a3045',
+        borderColor: colors.border,
         paddingHorizontal: 14,
         paddingVertical: 12,
         gap: 8,
     },
     input: {
         flex: 1,
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 18,
         fontWeight: 'bold',
         padding: 0,
     },
     unidade: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 13,
         fontWeight: '600',
     },
     separador: {
         height: 1,
-        backgroundColor: '#2a3045',
+        backgroundColor: colors.border,
         marginVertical: 20,
     },
     resultado: {
@@ -308,18 +301,18 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     resultadoLabel: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 10,
         fontWeight: '600',
         letterSpacing: 1,
     },
     resultadoValor: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 22,
         fontWeight: 'bold',
     },
     trechosTitulo: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 11,
         fontWeight: '600',
         letterSpacing: 1,
@@ -330,19 +323,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#2a3045',
+        borderBottomColor: colors.border,
         gap: 12,
     },
     trechoIndicador: {
         width: 24,
         height: 24,
         borderRadius: 12,
-        backgroundColor: '#2a3045',
+        backgroundColor: colors.border,
         alignItems: 'center',
         justifyContent: 'center',
     },
     trechoNum: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 12,
         fontWeight: 'bold',
     },
@@ -352,16 +345,16 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     trechoRumo: {
-        color: '#4A9EFF',
+        color: colors.primary,
         fontSize: 14,
         fontWeight: '600',
     },
     trechoDistancia: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 14,
     },
     trechoTempo: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 14,
         fontWeight: '600',
     },
@@ -373,7 +366,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     dicaTexto: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 13,
     },
 });

@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useMetar } from '../hooks/useMetar';
+import { COR_CONDICAO } from '../utils';
+import { colors } from '@/constants/theme';
 
 interface MeteorologiaCardProps {
   icao: string;
@@ -24,7 +26,7 @@ export function MeteorologiaCard({ icao, nome }: MeteorologiaCardProps) {
   if (loading) {
     return (
       <View style={[styles.card, styles.centro]}>
-        <ActivityIndicator size="small" color="#4A9EFF" />
+        <ActivityIndicator size="small" color={colors.primary} />
       </View>
     );
   }
@@ -37,7 +39,7 @@ export function MeteorologiaCard({ icao, nome }: MeteorologiaCardProps) {
           <Text style={styles.nome} numberOfLines={1}>{nome}</Text>
         </View>
         <View style={styles.statusErro}>
-          <Ionicons name="alert-circle" size={16} color="#6B7280" />
+          <Ionicons name="alert-circle" size={16} color={colors.textMuted} />
           <Text style={styles.erroTexto}>N/D</Text>
         </View>
       </TouchableOpacity>
@@ -49,7 +51,7 @@ export function MeteorologiaCard({ icao, nome }: MeteorologiaCardProps) {
       <View style={styles.infoPrincipal}>
         <View style={styles.topoCard}>
           <Text style={styles.icao}>{metar.icao}</Text>
-          <View style={[styles.badge, { backgroundColor: metar.cor_condicao }]}>
+          <View style={[styles.badge, { backgroundColor: COR_CONDICAO[metar.condicao] }]}>
             <Text style={styles.badgeTexto}>{metar.condicao}</Text>
           </View>
         </View>
@@ -58,20 +60,20 @@ export function MeteorologiaCard({ icao, nome }: MeteorologiaCardProps) {
 
       <View style={styles.detalhes}>
         <View style={styles.linhaDetalhe}>
-          <Ionicons name="swap-horizontal" size={14} color="#6B7280" />
+          <Ionicons name="swap-horizontal" size={14} color={colors.textMuted} />
           <Text style={styles.detalheTexto}>
             {metar.vento_direcao}° / {metar.vento_velocidade}kt
           </Text>
         </View>
         <View style={styles.linhaDetalhe}>
-          <Ionicons name="cloud" size={14} color="#6B7280" />
+          <Ionicons name="cloud" size={14} color={colors.textMuted} />
           <Text style={styles.detalheTexto} numberOfLines={1}>
             {metar.nuvens}
           </Text>
         </View>
       </View>
-      
-      <Ionicons name="chevron-forward" size={18} color="#1a2035" />
+
+      <Ionicons name="chevron-forward" size={18} color={colors.surface} />
     </TouchableOpacity>
   );
 }
@@ -80,7 +82,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -100,12 +102,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   icao: {
-    color: '#4A9EFF',
+    color: colors.primary,
     fontSize: 18,
     fontWeight: 'bold',
   },
   nome: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 13,
     opacity: 0.8,
   },
@@ -115,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   badgeTexto: {
-    color: '#0a0f1e',
+    color: colors.background,
     fontSize: 11,
     fontWeight: 'bold',
   },
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   detalheTexto: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 12,
   },
   statusErro: {
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   erroTexto: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 12,
   },
 });

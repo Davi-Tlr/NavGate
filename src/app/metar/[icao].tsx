@@ -6,6 +6,8 @@ import {
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMetar } from '@/features/metar/hooks/useMetar';
+import { COR_CONDICAO } from '@/features/metar/utils';
+import { colors } from '@/constants/theme';
 
 function grausParaDirecao(graus: number): string {
     if (graus === 0) return 'Variável';
@@ -22,7 +24,7 @@ function LinhaDetalhe({ icone, label, valor, cor }: {
 }) {
     return (
         <View style={styles.linhaDetalhe}>
-            <Ionicons name={icone} size={18} color="#4A9EFF" style={styles.linhaIcone} />
+            <Ionicons name={icone} size={18} color={colors.primary} style={styles.linhaIcone} />
             <View style={styles.linhaTexto}>
                 <Text style={styles.linhaLabel}>{label}</Text>
                 <Text style={[styles.linhaValor, cor ? { color: cor } : undefined]}>
@@ -44,7 +46,7 @@ export default function MetarScreen() {
     if (loading) {
         return (
             <View style={styles.centro}>
-                <ActivityIndicator size="large" color="#4A9EFF" />
+                <ActivityIndicator size="large" color={colors.primary} />
                 <Text style={styles.carregandoTexto}>Buscando METAR...</Text>
             </View>
         );
@@ -60,7 +62,7 @@ export default function MetarScreen() {
                 <Ionicons
                     name={semConexao ? 'wifi-outline' : 'cloud-offline'}
                     size={48}
-                    color="#EF4444"
+                    color={colors.danger}
                 />
                 <Text style={styles.erroTexto}>
                     {semConexao
@@ -78,7 +80,7 @@ export default function MetarScreen() {
                         onPress={() => icao && buscar(icao)}
                         activeOpacity={0.8}
                     >
-                        <Ionicons name="refresh" size={16} color="#0a0f1e" />
+                        <Ionicons name="refresh" size={16} color={colors.background} />
                         <Text style={styles.botaoRetryTexto}>Tentar novamente</Text>
                     </TouchableOpacity>
                 )}
@@ -87,7 +89,7 @@ export default function MetarScreen() {
     }
 
     if (!metar) {
-        return <View style={{ flex: 1, backgroundColor: '#0a0f1e' }} />;
+        return <View style={{ flex: 1, backgroundColor: colors.background }} />;
     }
 
     const ventoTexto = metar.vento_velocidade === 0
@@ -96,8 +98,8 @@ export default function MetarScreen() {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
-            <View style={[styles.condicaoCard, { borderColor: metar.cor_condicao }]}>
-                <View style={[styles.condicaoBadge, { backgroundColor: metar.cor_condicao }]}>
+            <View style={[styles.condicaoCard, { borderColor: COR_CONDICAO[metar.condicao] }]}>
+                <View style={[styles.condicaoBadge, { backgroundColor: COR_CONDICAO[metar.condicao] }]}>
                     <Text style={styles.condicaoTexto}>{metar.condicao}</Text>
                 </View>
                 <Text style={styles.condicaoIcao}>{metar.icao}</Text>
@@ -137,22 +139,22 @@ export default function MetarScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0a0f1e' },
+    container: { flex: 1, backgroundColor: colors.background },
     conteudo: { padding: 20, paddingBottom: 40 },
     centro: {
         flex: 1,
-        backgroundColor: '#0a0f1e',
+        backgroundColor: colors.background,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 12,
         padding: 24,
     },
-    carregandoTexto: { color: '#6B7280', fontSize: 14 },
-    erroTexto: { color: '#EF4444', fontSize: 16, textAlign: 'center' },
-    erroSub: { color: '#6B7280', fontSize: 13, textAlign: 'center' },
+    carregandoTexto: { color: colors.textMuted, fontSize: 14 },
+    erroTexto: { color: colors.danger, fontSize: 16, textAlign: 'center' },
+    erroSub: { color: colors.textMuted, fontSize: 13, textAlign: 'center' },
     botaoRetry: {
         marginTop: 8,
-        backgroundColor: '#4A9EFF',
+        backgroundColor: colors.primary,
         borderRadius: 10,
         paddingHorizontal: 20,
         paddingVertical: 12,
@@ -160,14 +162,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
-    botaoRetryTexto: { color: '#0a0f1e', fontSize: 14, fontWeight: '700' },
+    botaoRetryTexto: { color: colors.background, fontSize: 14, fontWeight: '700' },
     condicaoCard: {
         borderRadius: 14,
         borderWidth: 2,
         padding: 16,
         alignItems: 'center',
         marginBottom: 16,
-        backgroundColor: '#1a2035',
+        backgroundColor: colors.surface,
     },
     condicaoBadge: {
         borderRadius: 8,
@@ -175,17 +177,17 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         marginBottom: 8,
     },
-    condicaoTexto: { color: '#ffffff', fontWeight: 'bold', fontSize: 18 },
-    condicaoIcao: { color: '#ffffff', fontSize: 22, fontWeight: 'bold' },
-    condicaoHora: { color: '#6B7280', fontSize: 13, marginTop: 4 },
+    condicaoTexto: { color: colors.textPrimary, fontWeight: 'bold', fontSize: 18 },
+    condicaoIcao: { color: colors.textPrimary, fontSize: 22, fontWeight: 'bold' },
+    condicaoHora: { color: colors.textMuted, fontSize: 13, marginTop: 4 },
     secao: {
-        backgroundColor: '#1a2035',
+        backgroundColor: colors.surface,
         borderRadius: 14,
         padding: 16,
         marginBottom: 12,
     },
     secaoTitulo: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 12,
         fontWeight: '600',
         textTransform: 'uppercase',
@@ -195,8 +197,8 @@ const styles = StyleSheet.create({
     linhaDetalhe: { flexDirection: 'row', marginBottom: 12 },
     linhaIcone: { marginRight: 12, marginTop: 1 },
     linhaTexto: { flex: 1 },
-    linhaLabel: { color: '#6B7280', fontSize: 12, marginBottom: 2 },
-    linhaValor: { color: '#ffffff', fontSize: 15 },
-    rawContainer: { backgroundColor: '#0a0f1e', borderRadius: 8, padding: 12 },
-    rawTexto: { color: '#4A9EFF', fontSize: 13, fontFamily: 'monospace', lineHeight: 20 },
+    linhaLabel: { color: colors.textMuted, fontSize: 12, marginBottom: 2 },
+    linhaValor: { color: colors.textPrimary, fontSize: 15 },
+    rawContainer: { backgroundColor: colors.background, borderRadius: 8, padding: 12 },
+    rawTexto: { color: colors.primary, fontSize: 13, fontFamily: 'monospace', lineHeight: 20 },
 });

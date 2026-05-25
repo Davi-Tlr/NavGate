@@ -9,15 +9,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAerodromos } from '@/features/aerodromos/hooks/useAerodromos';
 import { Aerodromo } from '@/features/aerodromos/types';
+import { TIPO_ICONE } from '@/features/aerodromos/constants';
 import { useRouter } from 'expo-router';
-
-const TIPO_EMOJI: Record<Aerodromo['tipo'], string> = {
-  large_airport: '✈️',
-  medium_airport: '🛫',
-  small_airport: '🛩️',
-  heliport: '🚁',
-  seaplane_base: '🛥️',
-};
+import { colors } from '@/constants/theme';
 
 function CardAerodromo({ item }: { item: Aerodromo }) {
   const router = useRouter();
@@ -27,7 +21,7 @@ function CardAerodromo({ item }: { item: Aerodromo }) {
       activeOpacity={0.7}
       onPress={() => router.push(`/aerodromo/${item.icao}`)}
     >
-      <Text style={styles.tipoIcon}>{TIPO_EMOJI[item.tipo] ?? '✈️'}</Text>
+      <Ionicons name={TIPO_ICONE[item.tipo]} size={24} color={colors.primary} style={styles.tipoIcon} />
       <View style={styles.cardInfo}>
         <View style={styles.cardTopo}>
           <Text style={styles.icao}>{item.icao}</Text>
@@ -49,11 +43,11 @@ export default function BuscaScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
-        <Ionicons name="search" size={20} color="#6B7280" style={styles.inputIcon} />
+        <Ionicons name="search" size={20} color={colors.textMuted} style={styles.inputIcon} />
         <TextInput
           style={styles.input}
           placeholder="ICAO, nome ou cidade..."
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textMuted}
           value={termo}
           onChangeText={buscar}
           autoCorrect={false}
@@ -61,7 +55,7 @@ export default function BuscaScreen() {
         />
         {termo.length > 0 && (
           <TouchableOpacity onPress={limpar}>
-            <Ionicons name="close-circle" size={20} color="#6B7280" />
+            <Ionicons name="close-circle" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -76,7 +70,7 @@ export default function BuscaScreen() {
         />
       ) : termo.length >= 2 ? (
         <View style={styles.vazio}>
-          <Ionicons name="search-outline" size={48} color="#1a2035" />
+          <Ionicons name="search-outline" size={48} color={colors.surface} />
           <Text style={styles.vazioTitulo}>Nenhum resultado</Text>
           <Text style={styles.vazioTexto}>
             Não encontramos aeródromo para{'\n'}
@@ -88,7 +82,7 @@ export default function BuscaScreen() {
         </View>
       ) : (
         <View style={styles.vazio}>
-          <Ionicons name="airplane" size={48} color="#1a2035" />
+          <Ionicons name="airplane" size={48} color={colors.surface} />
           <Text style={styles.vazioTexto}>
             Digite o código ICAO, nome ou cidade
           </Text>
@@ -101,13 +95,13 @@ export default function BuscaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0f1e',
+    backgroundColor: colors.background,
     padding: 16,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     paddingHorizontal: 12,
     marginBottom: 16,
@@ -116,7 +110,7 @@ const styles = StyleSheet.create({
   inputIcon: { marginRight: 8 },
   input: {
     flex: 1,
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 16,
     paddingVertical: 8,
     paddingHorizontal: 4,
@@ -125,19 +119,19 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
   },
-  tipoIcon: { fontSize: 24, marginRight: 12 },
+  tipoIcon: { marginRight: 12 },
   cardInfo: { flex: 1 },
   cardTopo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  icao: { color: '#4A9EFF', fontWeight: 'bold', fontSize: 16 },
-  iata: { color: '#6B7280', fontSize: 12 },
-  nome: { color: '#ffffff', fontSize: 14, marginTop: 2 },
-  municipio: { color: '#6B7280', fontSize: 12, marginTop: 2 },
-  altitude: { color: '#6B7280', fontSize: 12 },
+  icao: { color: colors.primary, fontWeight: 'bold', fontSize: 16 },
+  iata: { color: colors.textMuted, fontSize: 12 },
+  nome: { color: colors.textPrimary, fontSize: 14, marginTop: 2 },
+  municipio: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
+  altitude: { color: colors.textMuted, fontSize: 12 },
   vazio: {
     flex: 1,
     alignItems: 'center',
@@ -145,22 +139,22 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   vazioTitulo: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 17,
     fontWeight: '600',
   },
   vazioTexto: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 22,
   },
   vazioTermoDest: {
-    color: '#4A9EFF',
+    color: colors.primary,
     fontWeight: '600',
   },
   vazioSugestao: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 12,
     textAlign: 'center',
     opacity: 0.7,

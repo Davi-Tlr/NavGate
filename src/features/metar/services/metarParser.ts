@@ -1,7 +1,5 @@
 import { MetarProcessado } from '../types';
 
-// Classifica a condição de voo baseado em visibilidade e teto de nuvens
-// Esta é a classificação oficial da aviação civil
 function classificarCondicao(
     visibilidadeMetros: number,
     tetoPes: number | null
@@ -18,18 +16,9 @@ function classificarCondicao(
     if (visibilidadeMetros < 8000 || (tetoPes !== null && tetoPes < 3000)) {
         return 'MVFR';
     }
-    // VFR: condições boas para voo visual
     return 'VFR';
 }
 
-const COR_CONDICAO: Record<MetarProcessado['condicao'], string> = {
-    VFR: '#22C55E', // verde
-    MVFR: '#3B82F6', // azul
-    IFR: '#EF4444', // vermelho
-    LIFR: '#A855F7', // roxo
-};
-
-// Traduz os prefixos de cobertura de nuvens
 const COBERTURA: Record<string, string> = {
     SKC: 'Céu limpo',
     CLR: 'Céu limpo',
@@ -76,7 +65,7 @@ export function parsearMetar(raw: string, icao: string): MetarProcessado {
 
         // Vento variável: VRB05KT
         if (/^VRB\d{2,3}KT$/.test(parte)) {
-            vento_direcao = 0; // variável
+            vento_direcao = 0;
             vento_velocidade = parseInt(parte.substring(3, 5));
         }
 
@@ -92,7 +81,6 @@ export function parsearMetar(raw: string, icao: string): MetarProcessado {
             }
         }
 
-        // CAVOK (teto e visibilidade OK)
         if (parte === 'CAVOK') {
             visibilidadeMetros = 9999;
             visibilidadeTexto = '+10 km';
@@ -103,15 +91,13 @@ export function parsearMetar(raw: string, icao: string): MetarProcessado {
         const matchNuvem = parte.match(/^(FEW|SCT|BKN|OVC)(\d{3})/);
         if (matchNuvem) {
             const cobertura = matchNuvem[1];
-            const altitude = parseInt(matchNuvem[2]) * 100; // em centenas de pés
+            const altitude = parseInt(matchNuvem[2]) * 100;
             nuvens = `${COBERTURA[cobertura] ?? cobertura} a ${altitude.toLocaleString('pt-BR')} ft`;
-            // Teto é BKN ou OVC
             if ((cobertura === 'BKN' || cobertura === 'OVC') && tetoPes === null) {
                 tetoPes = altitude;
             }
         }
 
-        // Céu limpo
         if (['SKC', 'CLR', 'NSC'].includes(parte)) {
             nuvens = COBERTURA[parte];
         }
@@ -147,7 +133,6 @@ export function parsearMetar(raw: string, icao: string): MetarProcessado {
         ponto_orvalho,
         qnh,
         condicao,
-        cor_condicao: COR_CONDICAO[condicao],
         nuvens,
     };
 }

@@ -32,10 +32,10 @@ export function useMetar() {
                 taf: tafRaw,
                 erro: null,
             });
-        } catch (e) {
-            const mensagem = e instanceof Error ? e.message : 'Erro desconhecido';
-            setEstado(e => ({
-                ...e,
+        } catch (err) {
+            const mensagem = err instanceof Error ? err.message : 'Erro desconhecido';
+            setEstado(prev => ({
+                ...prev,
                 loading: false,
                 erro: mensagem,
                 metar: null,

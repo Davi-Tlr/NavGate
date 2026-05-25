@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import { Rota, Waypoint } from '../types';
 import { CalculoVoo } from './CalculoVoo';
+import { colors } from '@/constants/theme';
 
 interface PainelRotaProps {
     waypoints: Waypoint[];
@@ -135,7 +136,7 @@ export function PainelRota({
                         </Text>
                         {rota && index < waypoints.length - 1 && (
                             <View style={styles.trechoInfo}>
-                                <Ionicons name="navigate" size={12} color="#4A9EFF" />
+                                <Ionicons name="navigate" size={12} color={colors.primary} />
                                 <Text style={styles.trechoTexto}>
                                     {rota.trechos[index].rumoVerdadeiro.toFixed(0).padStart(3, '0')}° RV
                                     {' · '}
@@ -148,14 +149,14 @@ export function PainelRota({
                     <View style={styles.acoes}>
                         {coords && (
                             <TouchableOpacity onPress={() => onVerNoMapa(coords)} hitSlop={8}>
-                                <Ionicons name="locate" size={18} color="#4A9EFF" />
+                                <Ionicons name="locate" size={18} color={colors.primary} />
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity onPress={() => onRemover(wp.id)} hitSlop={8}>
-                            <Ionicons name="close-circle" size={20} color="#6B7280" />
+                            <Ionicons name="close-circle" size={20} color={colors.textMuted} />
                         </TouchableOpacity>
                         <TouchableOpacity onLongPress={drag} hitSlop={8} style={styles.dragHandle}>
-                            <Ionicons name="reorder-three" size={20} color="#6B7280" />
+                            <Ionicons name="reorder-three" size={20} color={colors.textMuted} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -176,7 +177,7 @@ export function PainelRota({
                             autoFocus
                             selectTextOnFocus
                             maxLength={20}
-                            placeholderTextColor="#6B7280"
+                            placeholderTextColor={colors.textMuted}
                         />
                         <View style={styles.modalBotoes}>
                             <TouchableOpacity style={styles.modalBotaoCancelar} onPress={() => setEditando(null)}>
@@ -205,11 +206,11 @@ export function PainelRota({
                     <View style={styles.headerBotoes}>
                         {waypoints.length > 0 && (
                             <TouchableOpacity onPress={onLimpar} style={styles.botaoLimpar}>
-                                <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                                <Ionicons name="trash-outline" size={18} color={colors.danger} />
                             </TouchableOpacity>
                         )}
                         <Pressable onPress={onFechar} hitSlop={8}>
-                            <Ionicons name="close" size={22} color="#6B7280" />
+                            <Ionicons name="close" size={22} color={colors.textMuted} />
                         </Pressable>
                     </View>
                 </View>
@@ -217,7 +218,7 @@ export function PainelRota({
 
             {waypoints.length === 0 ? (
                 <View style={styles.vazio}>
-                    <Ionicons name="navigate-outline" size={48} color="#2a3045" />
+                    <Ionicons name="navigate-outline" size={48} color={colors.border} />
                     <Text style={styles.vazioTitulo}>Nenhum ponto adicionado</Text>
                     <Text style={styles.vazioTexto}>
                         Toque em um aeródromo ou segure{'\n'}no mapa para adicionar à rota
@@ -247,8 +248,8 @@ export function PainelRota({
                                     onPress={() => setCalculoAberto(true)}
                                     activeOpacity={0.8}
                                 >
-                                    <Ionicons name="calculator-outline" size={16} color="#22C55E" />
-                                    <Text style={[styles.botaoAcaoTexto, { color: '#22C55E' }]}>Calcular Voo</Text>
+                                    <Ionicons name="calculator-outline" size={16} color={colors.success} />
+                                    <Text style={[styles.botaoAcaoTexto, { color: colors.success }]}>Calcular Voo</Text>
                                 </TouchableOpacity>
                                 <View style={styles.botaoDivisor} />
                                 <TouchableOpacity
@@ -256,8 +257,8 @@ export function PainelRota({
                                     onPress={onVerPerfil}
                                     activeOpacity={0.8}
                                 >
-                                    <Ionicons name="trending-up" size={16} color="#4A9EFF" />
-                                    <Text style={[styles.botaoAcaoTexto, { color: '#4A9EFF' }]}>Perfil de Terreno</Text>
+                                    <Ionicons name="trending-up" size={16} color={colors.primary} />
+                                    <Text style={[styles.botaoAcaoTexto, { color: colors.primary }]}>Perfil de Terreno</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
     container: {
         position: 'absolute',
         bottom: 0, left: 0, right: 0,
-        backgroundColor: '#1a2035',
+        backgroundColor: colors.surface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         overflow: 'hidden',
@@ -284,51 +285,51 @@ const styles = StyleSheet.create({
     },
     handleArea: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 },
     handle: {
-        width: 40, height: 4, backgroundColor: '#6B7280',
+        width: 40, height: 4, backgroundColor: colors.textMuted,
         borderRadius: 2, alignSelf: 'center', marginBottom: 12, opacity: 0.5,
     },
     headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    titulo: { color: '#ffffff', fontSize: 17, fontWeight: 'bold' },
+    titulo: { color: colors.textPrimary, fontSize: 17, fontWeight: 'bold' },
     headerBotoes: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     botaoLimpar: { padding: 4 },
     conteudo: { flex: 1 },
     lista: { flex: 1, paddingHorizontal: 20 },
     vazio: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: 20 },
-    vazioTitulo: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
-    vazioTexto: { color: '#6B7280', fontSize: 14, textAlign: 'center', lineHeight: 20 },
+    vazioTitulo: { color: colors.textPrimary, fontSize: 16, fontWeight: '600' },
+    vazioTexto: { color: colors.textMuted, fontSize: 14, textAlign: 'center', lineHeight: 20 },
     waypointRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 4, borderRadius: 8, paddingVertical: 4 },
-    waypointAtivo: { backgroundColor: '#0a2010' },
+    waypointAtivo: { backgroundColor: colors.overlayGreen },
     waypointIndicador: { alignItems: 'center', width: 24, marginRight: 12, marginTop: 4 },
-    waypointDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#4A9EFF', borderWidth: 2, borderColor: '#ffffff' },
-    dotOrigem: { backgroundColor: '#22C55E' },
-    dotDestino: { backgroundColor: '#EF4444' },
-    waypointLinha: { width: 2, height: 40, backgroundColor: '#4A9EFF', opacity: 0.4, marginTop: 2 },
+    waypointDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.primary, borderWidth: 2, borderColor: colors.textPrimary },
+    dotOrigem: { backgroundColor: colors.success },
+    dotDestino: { backgroundColor: colors.danger },
+    waypointLinha: { width: 2, height: 40, backgroundColor: colors.primary, opacity: 0.4, marginTop: 2 },
     waypointInfo: { flex: 1, paddingBottom: 8 },
-    waypointIcao: { color: '#4A9EFF', fontSize: 16, fontWeight: 'bold' },
-    waypointNome: { color: '#6B7280', fontSize: 13, marginTop: 2 },
+    waypointIcao: { color: colors.primary, fontSize: 16, fontWeight: 'bold' },
+    waypointNome: { color: colors.textMuted, fontSize: 13, marginTop: 2 },
     trechoInfo: {
         flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6,
-        backgroundColor: '#0a0f1e', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, alignSelf: 'flex-start',
+        backgroundColor: colors.background, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, alignSelf: 'flex-start',
     },
-    trechoTexto: { color: '#4A9EFF', fontSize: 13, fontWeight: '600' },
+    trechoTexto: { color: colors.primary, fontSize: 13, fontWeight: '600' },
     acoes: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 2 },
     dragHandle: { padding: 4 },
-    rodape: { borderTopWidth: 1, borderTopColor: '#2a3045', paddingHorizontal: 20, paddingBottom: 32 },
+    rodape: { borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: 20, paddingBottom: 32 },
     total: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
-    totalLabel: { color: '#6B7280', fontSize: 12, fontWeight: '600', letterSpacing: 1 },
-    totalValor: { color: '#ffffff', fontSize: 20, fontWeight: 'bold' },
-    botoesAcao: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#2a3045' },
+    totalLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600', letterSpacing: 1 },
+    totalValor: { color: colors.textPrimary, fontSize: 20, fontWeight: 'bold' },
+    botoesAcao: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border },
     botaoAcao: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 },
-    botaoDivisor: { width: 1, backgroundColor: '#2a3045', marginVertical: 8 },
+    botaoDivisor: { width: 1, backgroundColor: colors.border, marginVertical: 8 },
     botaoAcaoTexto: { fontSize: 13, fontWeight: '600' },
-    dica: { color: '#6B7280', fontSize: 13, textAlign: 'center', paddingVertical: 16 },
+    dica: { color: colors.textMuted, fontSize: 13, textAlign: 'center', paddingVertical: 16 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-    modalBox: { backgroundColor: '#1a2035', borderRadius: 16, padding: 24, width: '80%', gap: 16 },
-    modalTitulo: { color: '#ffffff', fontSize: 17, fontWeight: 'bold' },
-    modalInput: { backgroundColor: '#0a0f1e', borderRadius: 10, padding: 12, color: '#ffffff', fontSize: 16, borderWidth: 1, borderColor: '#2a3045' },
+    modalBox: { backgroundColor: colors.surface, borderRadius: 16, padding: 24, width: '80%', gap: 16 },
+    modalTitulo: { color: colors.textPrimary, fontSize: 17, fontWeight: 'bold' },
+    modalInput: { backgroundColor: colors.background, borderRadius: 10, padding: 12, color: colors.textPrimary, fontSize: 16, borderWidth: 1, borderColor: colors.border },
     modalBotoes: { flexDirection: 'row', gap: 12 },
-    modalBotaoCancelar: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: '#2a3045', alignItems: 'center' },
-    modalBotaoCancelarTexto: { color: '#6B7280', fontWeight: '600' },
-    modalBotaoConfirmar: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: '#22C55E', alignItems: 'center' },
-    modalBotaoConfirmarTexto: { color: '#0a0f1e', fontWeight: 'bold' },
+    modalBotaoCancelar: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: colors.border, alignItems: 'center' },
+    modalBotaoCancelarTexto: { color: colors.textMuted, fontWeight: '600' },
+    modalBotaoConfirmar: { flex: 1, padding: 12, borderRadius: 10, backgroundColor: colors.success, alignItems: 'center' },
+    modalBotaoConfirmarTexto: { color: colors.background, fontWeight: 'bold' },
 });

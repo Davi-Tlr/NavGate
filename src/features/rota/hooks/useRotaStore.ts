@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -94,8 +95,11 @@ export function useRota() {
     const store = useRotaStore();
     const { waypoints } = store;
 
-    const rota: Rota | null = waypoints.length >= 2 ? calcularRota(waypoints) : null;
-    const linhaGeoJSON = rotaParaGeoJSON(waypoints);
+    const rota = useMemo<Rota | null>(
+        () => waypoints.length >= 2 ? calcularRota(waypoints) : null,
+        [waypoints]
+    );
+    const linhaGeoJSON = useMemo(() => rotaParaGeoJSON(waypoints), [waypoints]);
 
     return { ...store, rota, linhaGeoJSON, temRota: waypoints.length >= 2 };
 }

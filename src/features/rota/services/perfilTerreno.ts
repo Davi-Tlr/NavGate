@@ -1,4 +1,6 @@
 import { Waypoint } from '../types';
+import { getCoordsWaypoint } from '../utils';
+import { calcularDistanciaNM } from './rotaService';
 
 const OPEN_TOPO_URL = 'https://api.opentopodata.org/v1/srtm90m';
 const PONTOS_POR_TRECHO = 20;
@@ -19,12 +21,6 @@ function interpolarPontos(
     return pontos;
 }
 
-function getCoordsWaypoint(wp: Waypoint): [number, number] {
-    if (wp.aerodromo) return [wp.aerodromo.latitude, wp.aerodromo.longitude];
-    if (wp.coordenadas) return [wp.coordenadas[1], wp.coordenadas[0]];
-    return [0, 0];
-}
-
 export interface PontoElevacao {
     distancia: number; // NM acumulado
     altitude: number;  // metros
@@ -34,7 +30,6 @@ export interface PontoElevacao {
 export async function buscarPerfilTerreno(waypoints: Waypoint[]): Promise<PontoElevacao[]> {
     if (waypoints.length < 2) return [];
 
-    // Gera pontos interpolados ao longo de toda a rota
     const pontos: { lat: number; lng: number; distAcum: number }[] = [];
     let distTotal = 0;
 
@@ -46,15 +41,13 @@ export async function buscarPerfilTerreno(waypoints: Waypoint[]): Promise<PontoE
 
         for (let j = i === 0 ? 0 : 1; j < interpolados.length; j++) {
             const p = interpolados[j];
-            // distância simples em graus como proxy (não é NM exato mas serve para o eixo X)
-            const dLat = p.lat - (j > 0 ? interpolados[j - 1].lat : lat1);
-            const dLng = p.lng - (j > 0 ? interpolados[j - 1].lng : lng1);
-            distTotal += Math.sqrt(dLat * dLat + dLng * dLng) * 60;
+            const prevLat = j > 0 ? interpolados[j - 1].lat : lat1;
+            const prevLng = j > 0 ? interpolados[j - 1].lng : lng1;
+            distTotal += calcularDistanciaNM(prevLat, prevLng, p.lat, p.lng);
             pontos.push({ lat: p.lat, lng: p.lng, distAcum: distTotal });
         }
     }
 
-    // Limita a 100 pontos (limite da API)
     const passo = Math.ceil(pontos.length / 100);
     const pontosFiltrados = pontos.filter((_, i) => i % passo === 0).slice(0, 100);
 
@@ -67,7 +60,7 @@ export async function buscarPerfilTerreno(waypoints: Waypoint[]): Promise<PontoE
 
     if (data.status !== 'OK') throw new Error('Erro ao buscar elevação');
 
-    return data.results.map((r: any, i: number) => ({
+    return data.results.map((r: { elevation: number | null }, i: number) => ({
         distancia: parseFloat(pontosFiltrados[i].distAcum.toFixed(1)),
         altitude: r.elevation ?? 0,
         label: `${pontosFiltrados[i].distAcum.toFixed(0)} NM`,

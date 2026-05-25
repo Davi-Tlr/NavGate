@@ -3,6 +3,8 @@ import { Aerodromo } from '../types';
 
 const AERODROMOS: Aerodromo[] = aerodromosData as Aerodromo[];
 
+const MAX_RESULTADOS = 20;
+
 export function buscarAerodromos(termo: string): Aerodromo[] {
     if (!termo || termo.trim().length < 2) return [];
 
@@ -12,7 +14,7 @@ export function buscarAerodromos(termo: string): Aerodromo[] {
         a.icao.includes(busca) ||
         a.nome.toUpperCase().includes(busca) ||
         a.municipio.toUpperCase().includes(busca)
-    ).slice(0, 20);
+    ).slice(0, MAX_RESULTADOS);
 }
 
 export function buscarPorIcao(icao: string): Aerodromo | undefined {

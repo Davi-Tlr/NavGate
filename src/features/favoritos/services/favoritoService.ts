@@ -8,7 +8,7 @@ let dbInstance: SQLite.SQLiteDatabase | null = null;
 export const favoritoService = {
   async getDb() {
     if (dbInstance) return dbInstance;
-    
+
     try {
       dbInstance = await SQLite.openDatabaseAsync(DATABASE_NAME);
       return dbInstance;
@@ -36,7 +36,6 @@ export const favoritoService = {
           data_adicao TEXT NOT NULL
         );
       `);
-      console.log('[DATABASE] Banco inicializado com sucesso');
     } catch (error) {
       console.error('[DATABASE] Erro na inicialização:', error);
     }
@@ -50,9 +49,9 @@ export const favoritoService = {
   async adicionarFavorito(aerodromo: Aerodromo): Promise<void> {
     const db = await this.getDb();
     const dataAdicao = new Date().toISOString();
-    
+
     await db.runAsync(
-      `INSERT OR REPLACE INTO favoritos (icao, nome, tipo, latitude, longitude, altitude_ft, municipio, regiao, iata, data_adicao) 
+      `INSERT OR REPLACE INTO favoritos (icao, nome, tipo, latitude, longitude, altitude_ft, municipio, regiao, iata, data_adicao)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         aerodromo.icao,
@@ -63,7 +62,7 @@ export const favoritoService = {
         aerodromo.altitude_ft,
         aerodromo.municipio,
         aerodromo.regiao,
-        aerodromo.iata || '',
+        aerodromo.iata ?? null,
         dataAdicao,
       ]
     );
@@ -72,14 +71,5 @@ export const favoritoService = {
   async removerFavorito(icao: string): Promise<void> {
     const db = await this.getDb();
     await db.runAsync('DELETE FROM favoritos WHERE icao = ?', [icao]);
-  },
-
-  async isFavorito(icao: string): Promise<boolean> {
-    const db = await this.getDb();
-    const firstRow = await db.getFirstAsync<{ count: number }>(
-      'SELECT COUNT(*) as count FROM favoritos WHERE icao = ?',
-      [icao]
-    );
-    return (firstRow?.count ?? 0) > 0;
   },
 };

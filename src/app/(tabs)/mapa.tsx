@@ -12,6 +12,8 @@ import { useRota } from '@/features/rota/hooks/useRotaStore';
 import { mapaService } from '@/features/mapa/services/mapaService';
 import { buscarPorIcao } from '@/features/aerodromos/services/aerodromoService';
 import { Aerodromo } from '@/features/aerodromos/types';
+import { EspacosAereosGeoJSON } from '@/features/mapa/types';
+import { colors } from '@/constants/theme';
 
 const CONFIG_PADRAO: ConfigCamadas = {
   espacosAereos: true,
@@ -25,7 +27,7 @@ const CONFIG_PADRAO: ConfigCamadas = {
 };
 
 export default function MapaScreen() {
-  const [espacosAereos, setEspacosAereos] = useState<any>(null);
+  const [espacosAereos, setEspacosAereos] = useState<EspacosAereosGeoJSON | null>(null);
   const [selecionado, setSelecionado] = useState<Aerodromo | null>(null);
   const [center, setCenter] = useState<[number, number]>([-51.9253, -14.2350]);
   const [zoom, setZoom] = useState(4);
@@ -59,7 +61,7 @@ export default function MapaScreen() {
 
   useEffect(() => {
     mapaService.buscarEspacosAereos().then(data => {
-      if (data) setEspacosAereos(data);
+      if (data) setEspacosAereos(data as EspacosAereosGeoJSON);
     });
   }, []);
 
@@ -93,6 +95,7 @@ export default function MapaScreen() {
     if (!aerodromo) return;
     if (modoRota) {
       adicionarAerodromo(aerodromo);
+      setPerfilAberto(false);
       setPainelRotaAberto(true);
       return;
     }
@@ -104,6 +107,7 @@ export default function MapaScreen() {
     const aerodromo = buscarPorIcao(icao);
     if (aerodromo) {
       adicionarAerodromo(aerodromo);
+      setPerfilAberto(false);
       setPainelRotaAberto(true);
     }
   };
@@ -111,6 +115,7 @@ export default function MapaScreen() {
   const handleLongPressMapa = (coords: [number, number]) => {
     if (!modoRota) return;
     adicionarPontoLivre(coords);
+    setPerfilAberto(false);
     setPainelRotaAberto(true);
   };
 
@@ -172,7 +177,7 @@ export default function MapaScreen() {
 
       {modoRota && (
         <Animated.View style={[styles.tooltip, { opacity: tooltipOpacity }]}>
-          <Ionicons name="hand-left-outline" size={16} color="#22C55E" />
+          <Ionicons name="hand-left-outline" size={16} color={colors.success} />
           <Text style={styles.tooltipTexto}>
             Toque em um aeródromo ou segure no mapa para adicionar à rota
           </Text>
@@ -185,7 +190,7 @@ export default function MapaScreen() {
           onPress={() => setModoRota(false)}
           activeOpacity={0.8}
         >
-          <Ionicons name="close" size={16} color="#EF4444" />
+          <Ionicons name="close" size={16} color={colors.danger} />
           <Text style={styles.botaoDesativarRotaTexto}>Sair da Rota</Text>
         </TouchableOpacity>
       )}
@@ -195,7 +200,7 @@ export default function MapaScreen() {
         onPress={toggleModoRota}
         activeOpacity={0.8}
       >
-        <Ionicons name="git-branch" size={22} color={modoRota ? '#0a0f1e' : '#22C55E'} />
+        <Ionicons name="git-branch" size={22} color={modoRota ? colors.background : colors.success} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -203,7 +208,7 @@ export default function MapaScreen() {
         onPress={() => setPainelAberto(true)}
         activeOpacity={0.8}
       >
-        <Ionicons name="layers" size={22} color="#4A9EFF" />
+        <Ionicons name="layers" size={22} color={colors.primary} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -213,8 +218,8 @@ export default function MapaScreen() {
         disabled={localizando}
       >
         {localizando
-          ? <ActivityIndicator size="small" color="#4A9EFF" />
-          : <Ionicons name="locate" size={22} color="#4A9EFF" />
+          ? <ActivityIndicator size="small" color={colors.primary} />
+          : <Ionicons name="locate" size={22} color={colors.primary} />
         }
       </TouchableOpacity>
 
@@ -262,7 +267,7 @@ export default function MapaScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0f1e' },
+  container: { flex: 1, backgroundColor: colors.background },
   tooltip: {
     position: 'absolute',
     top: 16,
@@ -271,15 +276,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#0a2010',
+    backgroundColor: colors.overlayGreen,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: '#22C55E',
+    borderColor: colors.success,
   },
   tooltipTexto: {
-    color: '#22C55E',
+    color: colors.success,
     fontSize: 13,
     flex: 1,
     lineHeight: 18,
@@ -291,15 +296,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#1a0505',
+    backgroundColor: colors.overlayRed,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#EF4444',
+    borderColor: colors.danger,
   },
   botaoDesativarRotaTexto: {
-    color: '#EF4444',
+    color: colors.danger,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -310,14 +315,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#22C55E',
+    borderColor: colors.success,
     elevation: 4,
   },
-  botaoRotaAtivo: { backgroundColor: '#22C55E' },
+  botaoRotaAtivo: { backgroundColor: colors.success },
   botaoCamadas: {
     position: 'absolute',
     bottom: 160,
@@ -325,11 +330,11 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#4A9EFF',
+    borderColor: colors.primary,
     elevation: 4,
   },
   botaoGps: {
@@ -339,11 +344,11 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#4A9EFF',
+    borderColor: colors.primary,
     elevation: 4,
   },
 });

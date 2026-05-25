@@ -7,17 +7,21 @@ export interface AirspaceFeature {
   properties: {
     name: string;
     type: string;
-    lowerLimit: string;
-    upperLimit: string;
   };
-  geometry: any;
+  geometry: { type: string; coordinates: unknown };
+}
+
+interface OpenAIPAirspace {
+  name?: string;
+  type?: string;
+  geometry?: { type: string; coordinates: unknown } | null;
+}
+
+interface OpenAIPResponse {
+  items?: OpenAIPAirspace[];
 }
 
 export const mapaService = {
-  /**
-   * Retorna os aeródromos formatados para o mapa (GeoJSON)
-   */
-
   getAerodromosGeoJSON(filtros: {
     aeroportos: boolean;
     aerodromos: boolean;
@@ -41,35 +45,32 @@ export const mapaService = {
     return { type: 'FeatureCollection', features };
   },
 
-  /**
-   * Busca espaços aéreos do OpenAIP
-   * Nota: Idealmente, salvar o resultado em cache para uso offline
-   */
   async buscarEspacosAereos() {
     const OPENAIP_KEY = process.env.EXPO_PUBLIC_OPENAIP_KEY;
     if (!OPENAIP_KEY) return null;
 
     try {
-      const data = await apiRequest<any>('OPENAIP', '/airspaces', {
+      const data = await apiRequest<OpenAIPResponse>('OPENAIP', '/airspaces', {
         country: 'BR',
         limit: '100',
       });
 
-      // OpenAIP retorna { items: [...] } — precisa converter para FeatureCollection
-      const items = data?.items ?? data ?? [];
+      const items = data?.items ?? [];
 
       if (!Array.isArray(items) || items.length === 0) return null;
 
       const featureCollection = {
         type: 'FeatureCollection',
-        features: items.map((item: any) => ({
-          type: 'Feature',
-          properties: {
-            name: item.name ?? '',
-            type: item.type ?? '',
-          },
-          geometry: item.geometry,
-        })).filter((f: any) => f.geometry != null),
+        features: items
+          .filter(item => item.geometry != null)
+          .map(item => ({
+            type: 'Feature' as const,
+            properties: {
+              name: item.name ?? '',
+              type: item.type ?? '',
+            },
+            geometry: item.geometry as { type: string; coordinates: unknown },
+          })),
       };
 
       return featureCollection;
@@ -79,4 +80,3 @@ export const mapaService = {
     }
   }
 };
-

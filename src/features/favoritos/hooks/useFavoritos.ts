@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 interface FavoritosState {
   favoritos: Favorito[];
   isLoading: boolean;
+  carregado: boolean;
   fetchFavoritos: () => Promise<void>;
   adicionarFavorito: (aerodromo: Aerodromo) => Promise<void>;
   removerFavorito: (icao: string) => Promise<void>;
@@ -16,16 +17,17 @@ interface FavoritosState {
 const useFavoritosStore = create<FavoritosState>((set, get) => ({
   favoritos: [],
   isLoading: false,
+  carregado: false,
 
   fetchFavoritos: async () => {
     set({ isLoading: true });
     try {
       await favoritoService.initDb();
       const favs = await favoritoService.listarFavoritos();
-      set({ favoritos: favs, isLoading: false });
+      set({ favoritos: favs, isLoading: false, carregado: true });
     } catch (error) {
       console.error('Erro ao buscar favoritos:', error);
-      set({ isLoading: false });
+      set({ isLoading: false, carregado: true });
     }
   },
 
@@ -58,9 +60,9 @@ export const useFavoritos = () => {
   const store = useFavoritosStore();
 
   useEffect(() => {
-    // Inicializa se necessário
-    if (store.favoritos.length === 0 && !store.isLoading) {
-      store.fetchFavoritos();
+    const { carregado, isLoading, fetchFavoritos } = useFavoritosStore.getState();
+    if (!carregado && !isLoading) {
+      fetchFavoritos();
     }
   }, []);
 

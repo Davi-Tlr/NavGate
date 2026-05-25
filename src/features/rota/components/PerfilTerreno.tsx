@@ -7,6 +7,7 @@ import { VictoryChart, VictoryArea, VictoryAxis, VictoryLine } from 'victory-nat
 import { Ionicons } from '@expo/vector-icons';
 import { Waypoint } from '../types';
 import { buscarPerfilTerreno, PontoElevacao } from '../services/perfilTerreno';
+import { colors } from '@/constants/theme';
 
 interface PerfilTerrenoProps {
     waypoints: Waypoint[];
@@ -47,6 +48,12 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
         altPlanejadaValida ? altPlanejadaNum + 100 : 0
     );
 
+    const hintIcone = vooSeguro ? 'checkmark-circle' : 'warning';
+    const hintCor = vooSeguro ? colors.success : colors.danger;
+    const hintTexto = vooSeguro
+        ? 'Seguro — acima do terreno + 1000 ft'
+        : `Abaixo da altitude segura (${altSeguraPes} ft)`;
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -57,28 +64,27 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                 <View style={styles.headerRow}>
                     <Text style={styles.titulo}>Perfil de Terreno</Text>
                     <TouchableOpacity onPress={onFechar} hitSlop={8}>
-                        <Ionicons name="close" size={22} color="#6B7280" />
+                        <Ionicons name="close" size={22} color={colors.textMuted} />
                     </TouchableOpacity>
                 </View>
             </View>
 
             {loading && (
                 <View style={styles.centro}>
-                    <ActivityIndicator size="large" color="#4A9EFF" />
+                    <ActivityIndicator size="large" color={colors.primary} />
                     <Text style={styles.loadingTexto}>Calculando perfil...</Text>
                 </View>
             )}
 
             {erro && (
                 <View style={styles.centro}>
-                    <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
+                    <Ionicons name="alert-circle-outline" size={48} color={colors.danger} />
                     <Text style={styles.erroTexto}>{erro}</Text>
                 </View>
             )}
 
             {!loading && !erro && dados.length > 0 && (
                 <ScrollView keyboardShouldPersistTaps="handled">
-                    {/* Stats */}
                     <View style={styles.stats}>
                         <View style={styles.statItem}>
                             <Text style={styles.statLabel}>ALT. MÁX. TERRENO</Text>
@@ -86,23 +92,26 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                         </View>
                         <View style={styles.statItem}>
                             <Text style={styles.statLabel}>ALT. MÍN. SEGURA</Text>
-                            <Text style={[styles.statValor, { color: '#22C55E' }]}>{altSeguraPes} ft</Text>
+                            <Text style={[styles.statValor, { color: colors.success }]}>{altSeguraPes} ft</Text>
                         </View>
                     </View>
 
-                    {/* Campo altitude planejada */}
                     <View style={styles.altitudePlaneadaContainer}>
                         <View style={styles.altitudePlaneadaRow}>
                             <View style={styles.altitudePlaneadaInfo}>
                                 <Text style={styles.altitudePlaneadaLabel}>Altitude de cruzeiro planejada</Text>
-                                <Text style={styles.altitudePlaneadaHint}>
-                                    {altPlanejadaValida
-                                        ? vooSeguro
-                                            ? '✓ Seguro — acima do terreno + 1000 ft'
-                                            : `⚠ Abaixo da altitude segura (${altSeguraPes} ft)`
-                                        : 'Digite sua altitude de cruzeiro'
-                                    }
-                                </Text>
+                                {altPlanejadaValida ? (
+                                    <View style={styles.hintRow}>
+                                        <Ionicons name={hintIcone} size={13} color={hintCor} />
+                                        <Text style={[styles.altitudePlaneadaHint, { color: hintCor }]}>
+                                            {hintTexto}
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <Text style={styles.altitudePlaneadaHint}>
+                                        Digite sua altitude de cruzeiro
+                                    </Text>
+                                )}
                             </View>
                             <View style={styles.altitudePlaneadaInputContainer}>
                                 <TextInput
@@ -117,14 +126,13 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                                     keyboardType="numeric"
                                     maxLength={6}
                                     placeholder="ft"
-                                    placeholderTextColor="#6B7280"
+                                    placeholderTextColor={colors.textMuted}
                                 />
                                 <Text style={styles.ftLabel}>ft</Text>
                             </View>
                         </View>
                     </View>
 
-                    {/* Gráfico */}
                     <VictoryChart
                         height={220}
                         padding={{ top: 20, bottom: 40, left: 60, right: 20 }}
@@ -134,8 +142,8 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                     >
                         <VictoryAxis
                             style={{
-                                axis: { stroke: '#2a3045' },
-                                tickLabels: { fill: '#6B7280', fontSize: 10 },
+                                axis: { stroke: colors.border },
+                                tickLabels: { fill: colors.textMuted, fontSize: 10 },
                                 grid: { stroke: 'transparent' },
                             }}
                             tickCount={5}
@@ -143,14 +151,13 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                         <VictoryAxis
                             dependentAxis
                             style={{
-                                axis: { stroke: '#2a3045' },
-                                tickLabels: { fill: '#6B7280', fontSize: 10 },
-                                grid: { stroke: '#2a3045', strokeDasharray: '4,4' },
+                                axis: { stroke: colors.border },
+                                tickLabels: { fill: colors.textMuted, fontSize: 10 },
+                                grid: { stroke: colors.border, strokeDasharray: '4,4' },
                             }}
                             tickFormat={(t: number) => `${t}ft`}
                         />
 
-                        {/* Linha altitude mínima segura */}
                         <VictoryLine
                             data={[
                                 { x: distMin, y: altSeguraPes },
@@ -158,14 +165,13 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                             ]}
                             style={{
                                 data: {
-                                    stroke: '#22C55E',
+                                    stroke: colors.success,
                                     strokeWidth: 1.5,
                                     strokeDasharray: '5,5',
                                 },
                             }}
                         />
 
-                        {/* Linha altitude planejada */}
                         {altPlanejadaValida && (
                             <VictoryLine
                                 data={[
@@ -174,30 +180,28 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                                 ]}
                                 style={{
                                     data: {
-                                        stroke: vooSeguro ? '#4A9EFF' : '#EF4444',
+                                        stroke: vooSeguro ? colors.primary : colors.danger,
                                         strokeWidth: 2,
                                     },
                                 }}
                             />
                         )}
 
-                        {/* Terreno */}
                         <VictoryArea
                             data={dadosEmPes}
                             x="distancia"
                             y="altitude"
                             style={{
                                 data: {
-                                    fill: '#4A9EFF',
+                                    fill: colors.primary,
                                     fillOpacity: 0.3,
-                                    stroke: '#4A9EFF',
+                                    stroke: colors.primary,
                                     strokeWidth: 2,
                                 },
                             }}
                         />
                     </VictoryChart>
 
-                    {/* Legenda */}
                     <View style={styles.legendaContainer}>
                         <Text style={styles.legenda}>Distância em NM · Altitude em pés (MSL)</Text>
                         <View style={styles.legendaLinha}>
@@ -206,7 +210,7 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                         </View>
                         {altPlanejadaValida && (
                             <View style={styles.legendaLinha}>
-                                <Text style={[styles.legendaVerde, { color: vooSeguro ? '#4A9EFF' : '#EF4444' }]}>——— </Text>
+                                <Text style={[styles.legendaVerde, { color: vooSeguro ? colors.primary : colors.danger }]}>——— </Text>
                                 <Text style={styles.legendaTexto}>Altitude planejada ({altPlanejadaNum} ft)</Text>
                             </View>
                         )}
@@ -223,7 +227,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#1a2035',
+        backgroundColor: colors.surface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         maxHeight: '80%',
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
     handle: {
         width: 40,
         height: 4,
-        backgroundColor: '#6B7280',
+        backgroundColor: colors.textMuted,
         borderRadius: 2,
         alignSelf: 'center',
         marginBottom: 12,
@@ -249,7 +253,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     titulo: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 17,
         fontWeight: 'bold',
     },
@@ -258,9 +262,9 @@ const styles = StyleSheet.create({
         paddingVertical: 40,
         gap: 12,
     },
-    loadingTexto: { color: '#6B7280', fontSize: 14 },
+    loadingTexto: { color: colors.textMuted, fontSize: 14 },
     erroTexto: {
-        color: '#EF4444',
+        color: colors.danger,
         fontSize: 14,
         textAlign: 'center',
         paddingHorizontal: 20,
@@ -271,17 +275,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#2a3045',
+        borderBottomColor: colors.border,
     },
     statItem: { alignItems: 'center' },
     statLabel: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 11,
         fontWeight: '600',
         letterSpacing: 1,
     },
     statValor: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 18,
         fontWeight: 'bold',
         marginTop: 4,
@@ -290,7 +294,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#2a3045',
+        borderBottomColor: colors.border,
     },
     altitudePlaneadaRow: {
         flexDirection: 'row',
@@ -300,12 +304,18 @@ const styles = StyleSheet.create({
     },
     altitudePlaneadaInfo: { flex: 1 },
     altitudePlaneadaLabel: {
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 14,
         fontWeight: '600',
     },
+    hintRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
+    },
     altitudePlaneadaHint: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 12,
         marginTop: 2,
     },
@@ -315,27 +325,27 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     altitudePlaneadaInput: {
-        backgroundColor: '#0a0f1e',
+        backgroundColor: colors.background,
         borderRadius: 8,
         padding: 10,
-        color: '#ffffff',
+        color: colors.textPrimary,
         fontSize: 16,
         fontWeight: 'bold',
         borderWidth: 1,
-        borderColor: '#2a3045',
+        borderColor: colors.border,
         width: 80,
         textAlign: 'center',
     },
-    inputSeguro: { borderColor: '#4A9EFF' },
-    inputPerigo: { borderColor: '#EF4444' },
-    ftLabel: { color: '#6B7280', fontSize: 12 },
+    inputSeguro: { borderColor: colors.primary },
+    inputPerigo: { borderColor: colors.danger },
+    ftLabel: { color: colors.textMuted, fontSize: 12 },
     legendaContainer: {
         alignItems: 'center',
         paddingVertical: 8,
         gap: 4,
     },
     legenda: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 11,
         textAlign: 'center',
     },
@@ -344,12 +354,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     legendaVerde: {
-        color: '#22C55E',
+        color: colors.success,
         fontSize: 11,
         fontWeight: 'bold',
     },
     legendaTexto: {
-        color: '#6B7280',
+        color: colors.textMuted,
         fontSize: 11,
     },
 });

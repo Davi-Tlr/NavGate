@@ -3,7 +3,7 @@ import 'react-native-reanimated';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
+import { colors } from '@/constants/theme';
 
 export default function RootLayout() {
   return (
@@ -11,8 +11,8 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#0a0f1e' },
-          headerTintColor: '#ffffff',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.textPrimary,
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       >

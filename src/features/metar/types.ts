@@ -10,8 +10,7 @@ export interface MetarProcessado {
     temperatura: number;      // ex: 28 (°C)
     ponto_orvalho: number;    // ex: 18 (°C)
     qnh: number;              // ex: 1013 (hPa)
-    condicao: 'VFR' | 'MVFR' | 'IFR' | 'LIFR'; // classificação automática
-    cor_condicao: string;     // cor para exibir na UI
-    nuvens: string;           // ex: "Poucas nuvens a 2000 ft"
+    condicao: 'VFR' | 'MVFR' | 'IFR' | 'LIFR';
+    nuvens: string;
 }
 

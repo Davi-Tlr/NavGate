@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFavoritos } from '@/features/favoritos/hooks/useFavoritos';
 import { MeteorologiaCard } from '@/features/metar/components/MeteorologiaCard';
 import { useRouter } from 'expo-router';
+import { colors } from '@/constants/theme';
 
 function CardSemEstacao({ icao, nome }: { icao: string; nome: string }) {
   return (
@@ -19,7 +20,7 @@ function CardSemEstacao({ icao, nome }: { icao: string; nome: string }) {
         <Text style={styles.cardSemEstacaoNome} numberOfLines={1}>{nome}</Text>
       </View>
       <View style={styles.cardSemEstacaoBadge}>
-        <Ionicons name="cloud-offline-outline" size={14} color="#6B7280" />
+        <Ionicons name="cloud-offline-outline" size={14} color={colors.textMuted} />
         <Text style={styles.cardSemEstacaoTexto}>Sem estação</Text>
       </View>
     </View>
@@ -39,7 +40,7 @@ export default function MeteorologiaScreen() {
           style={styles.botaoRecarregar}
           activeOpacity={0.7}
         >
-          <Ionicons name="refresh" size={20} color="#4A9EFF" />
+          <Ionicons name="refresh" size={20} color={colors.primary} />
         </TouchableOpacity>
       </View>
       <Text style={styles.subtitulo}>Status dos seus favoritos</Text>
@@ -60,7 +61,7 @@ export default function MeteorologiaScreen() {
         />
       ) : (
         <View style={styles.vazio}>
-          <Ionicons name="cloud-offline-outline" size={64} color="#1a2035" />
+          <Ionicons name="cloud-offline-outline" size={64} color={colors.surface} />
           <Text style={styles.vazioTitulo}>Sem aeródromos</Text>
           <Text style={styles.vazioTexto}>
             Favorite aeródromos para acompanhar a meteorologia em tempo real nesta aba.
@@ -70,7 +71,7 @@ export default function MeteorologiaScreen() {
             activeOpacity={0.8}
             onPress={() => router.push('/')}
           >
-            <Ionicons name="search" size={18} color="#0a0f1e" />
+            <Ionicons name="search" size={18} color={colors.background} />
             <Text style={styles.botaoVazioTexto}>Buscar aeródromo</Text>
           </TouchableOpacity>
         </View>
@@ -82,7 +83,7 @@ export default function MeteorologiaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0f1e',
+    backgroundColor: colors.background,
     padding: 16,
   },
   header: {
@@ -93,18 +94,18 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   titulo: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 24,
     fontWeight: 'bold',
   },
   subtitulo: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 14,
     marginBottom: 20,
   },
   botaoRecarregar: {
     padding: 8,
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     borderRadius: 8,
   },
   lista: {
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
@@ -124,12 +125,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardSemEstacaoIcao: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontWeight: 'bold',
     fontSize: 15,
   },
   cardSemEstacaoNome: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 12,
     marginTop: 2,
   },
@@ -137,13 +138,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#0a0f1e',
+    backgroundColor: colors.background,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   cardSemEstacaoTexto: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 12,
   },
   vazio: {
@@ -153,13 +154,13 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   vazioTitulo: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 16,
   },
   vazioTexto: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 14,
     textAlign: 'center',
     marginTop: 8,
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   },
   botaoVazio: {
     marginTop: 16,
-    backgroundColor: '#4A9EFF',
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   botaoVazioTexto: {
-    color: '#0a0f1e',
+    color: colors.background,
     fontSize: 14,
     fontWeight: '700',
   },

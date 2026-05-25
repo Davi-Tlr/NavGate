@@ -1,6 +1,9 @@
 import React, { useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapLibreGL from '@maplibre/maplibre-react-native';
+import { EspacosAereosGeoJSON } from '../types';
+import { RotaFeature } from '@/features/rota/services/rotaService';
+import { colors } from '@/constants/theme';
 
 MapLibreGL.setAccessToken(null);
 const ShapeSourceAny = MapLibreGL.ShapeSource as any;
@@ -74,9 +77,9 @@ function buildMapStyle(mostrarWac: boolean, mostrarRea: boolean, satelite: boole
 interface MapaBaseProps {
   center?: [number, number];
   zoom?: number;
-  aerodromos?: any | null;
-  espacosAereos?: any | null;
-  linhaRota?: any | null;
+  aerodromos?: object | null;
+  espacosAereos?: EspacosAereosGeoJSON | null;
+  linhaRota?: RotaFeature | null;
   mostrarEspacosAereos?: boolean;
   mostrarWac?: boolean;
   mostrarRea?: boolean;
@@ -168,11 +171,11 @@ export function MapaBase({
           <ShapeSourceAny id="airspaces" shape={espacosAereos}>
             <MapLibreGL.FillLayer
               id="airspaces-fill"
-              style={{ fillColor: '#00bfff', fillOpacity: 0.08 }}
+              style={{ fillColor: colors.mapAirspace, fillOpacity: 0.08 }}
             />
             <MapLibreGL.LineLayer
               id="airspaces-line"
-              style={{ lineColor: '#00bfff', lineWidth: 1.5, lineOpacity: 0.6 }}
+              style={{ lineColor: colors.mapAirspace, lineWidth: 1.5, lineOpacity: 0.6 }}
             />
           </ShapeSourceAny>
         )}
@@ -182,7 +185,7 @@ export function MapaBase({
             <MapLibreGL.LineLayer
               id="rota-line"
               style={{
-                lineColor: '#22C55E',
+                lineColor: colors.success,
                 lineWidth: 3,
                 lineOpacity: 0.9,
                 lineDasharray: [2, 1],
@@ -196,7 +199,7 @@ export function MapaBase({
             id="rota-pontos"
             shape={{
               type: 'FeatureCollection',
-              features: linhaRota.geometry.coordinates.map((coord: [number, number], index: number) => ({
+              features: linhaRota.geometry.coordinates.map((coord, index) => ({
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: coord },
                 properties: { index },
@@ -207,9 +210,9 @@ export function MapaBase({
               id="rota-pontos-circle"
               style={{
                 circleRadius: 8,
-                circleColor: '#22C55E',
+                circleColor: colors.success,
                 circleStrokeWidth: 2,
-                circleStrokeColor: '#ffffff',
+                circleStrokeColor: colors.textPrimary,
               }}
             />
           </MapLibreGL.ShapeSource>
@@ -228,10 +231,10 @@ export function MapaBase({
               id={AERODROMOS_LAYER_ID}
               style={{
                 circleRadius: ['interpolate', ['linear'], ['zoom'], 4, 2, 10, 5, 14, 9] as any,
-                circleColor: '#00e5ff',
+                circleColor: colors.mapAerodrome,
                 circleOpacity: 0.9,
                 circleStrokeWidth: 1,
-                circleStrokeColor: '#ffffff',
+                circleStrokeColor: colors.textPrimary,
                 circleStrokeOpacity: 0.4,
               }}
             />

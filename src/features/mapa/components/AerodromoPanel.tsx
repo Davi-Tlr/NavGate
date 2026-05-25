@@ -11,22 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Aerodromo } from '@/features/aerodromos/types';
-
-const TIPO_LABEL: Record<string, string> = {
-  large_airport: 'Aeroporto Internacional',
-  medium_airport: 'Aeroporto Regional',
-  small_airport: 'Aeródromo',
-  heliport: 'Heliporto',
-  seaplane_base: 'Base de Hidroaviões',
-};
-
-const TIPO_EMOJI: Record<string, string> = {
-  large_airport: '✈️',
-  medium_airport: '🛫',
-  small_airport: '🛩️',
-  heliport: '🚁',
-  seaplane_base: '🛥️',
-};
+import { TIPO_LABEL, TIPO_ICONE } from '@/features/aerodromos/constants';
+import { colors } from '@/constants/theme';
 
 const PANEL_HEIGHT = 230;
 
@@ -82,13 +68,13 @@ export function AerodromoPanel({ aerodromo, onFechar }: AerodromoPanelProps) {
         <View style={styles.handle} />
 
         <View style={styles.cabecalho}>
-          <Text style={styles.emoji}>{TIPO_EMOJI[aerodromo.tipo] ?? '✈️'}</Text>
+          <Ionicons name={TIPO_ICONE[aerodromo.tipo]} size={28} color={colors.primary} style={styles.tipoIcone} />
           <View style={styles.cabecalhoInfo}>
             <Text style={styles.icao}>{aerodromo.icao}</Text>
-            <Text style={styles.tipo}>{TIPO_LABEL[aerodromo.tipo] ?? 'Aeródromo'}</Text>
+            <Text style={styles.tipo}>{TIPO_LABEL[aerodromo.tipo]}</Text>
           </View>
           <Pressable onPress={fechar} style={styles.botaoFechar} hitSlop={8}>
-            <Ionicons name="close" size={22} color="#6B7280" />
+            <Ionicons name="close" size={22} color={colors.textMuted} />
           </Pressable>
         </View>
 
@@ -96,13 +82,13 @@ export function AerodromoPanel({ aerodromo, onFechar }: AerodromoPanelProps) {
 
         <View style={styles.infoRow}>
           <View style={styles.infoItem}>
-            <Ionicons name="location" size={14} color="#4A9EFF" />
+            <Ionicons name="location" size={14} color={colors.primary} />
             <Text style={styles.infoTexto}>
               {aerodromo.municipio} · {aerodromo.regiao.replace('BR-', '')}
             </Text>
           </View>
           <View style={styles.infoItem}>
-            <Ionicons name="trending-up" size={14} color="#4A9EFF" />
+            <Ionicons name="trending-up" size={14} color={colors.primary} />
             <Text style={styles.infoTexto}>{aerodromo.altitude_ft} ft</Text>
           </View>
         </View>
@@ -116,7 +102,7 @@ export function AerodromoPanel({ aerodromo, onFechar }: AerodromoPanelProps) {
           }}
         >
           <Text style={styles.botaoDetalhesTexto}>Ver detalhes</Text>
-          <Ionicons name="chevron-forward" size={18} color="#0a0f1e" />
+          <Ionicons name="chevron-forward" size={18} color={colors.background} />
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -133,7 +119,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#1a2035',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -143,7 +129,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#6B7280',
+    backgroundColor: colors.textMuted,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 14,
@@ -154,20 +140,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
-  emoji: {
-    fontSize: 28,
+  tipoIcone: {
     marginRight: 12,
   },
   cabecalhoInfo: {
     flex: 1,
   },
   icao: {
-    color: '#4A9EFF',
+    color: colors.primary,
     fontSize: 22,
     fontWeight: 'bold',
   },
   tipo: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 12,
     marginTop: 1,
   },
@@ -175,7 +160,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   nome: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 14,
     marginBottom: 12,
     opacity: 0.85,
@@ -191,11 +176,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   infoTexto: {
-    color: '#6B7280',
+    color: colors.textMuted,
     fontSize: 13,
   },
   botaoDetalhes: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 12,
     flexDirection: 'row',
@@ -204,7 +189,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   botaoDetalhesTexto: {
-    color: '#0a0f1e',
+    color: colors.background,
     fontSize: 15,
     fontWeight: 'bold',
   },

@@ -4,6 +4,7 @@ import {
     Switch, ScrollView, Pressable, PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/constants/theme';
 
 export interface ConfigCamadas {
     espacosAereos: boolean;
@@ -33,8 +34,8 @@ function ItemToggle({ label, valor, onChange }: {
             <Switch
                 value={valor}
                 onValueChange={onChange}
-                trackColor={{ false: '#2a3045', true: '#4A9EFF' }}
-                thumbColor={valor ? '#ffffff' : '#6B7280'}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={valor ? colors.textPrimary : colors.textMuted}
             />
         </View>
     );
@@ -71,7 +72,6 @@ export function PainelCamadas({ config, onChange, onFechar }: PainelCamadasProps
             },
 
             onPanResponderMove: (_, g) => {
-                // Só permite arrastar pra baixo
                 const dy = Math.max(0, g.dy);
                 currentDrag.current = dy;
                 dragOffset.setValue(dy);
@@ -82,10 +82,8 @@ export function PainelCamadas({ config, onChange, onFechar }: PainelCamadasProps
                 const velocidadeParaBaixo = g.vy > 0.8;
 
                 if (dy > 100 || velocidadeParaBaixo) {
-                    // Fecha com animação
                     fechar();
                 } else {
-                    // Volta para posição original
                     Animated.spring(dragOffset, {
                         toValue: 0,
                         useNativeDriver: true,
@@ -100,28 +98,24 @@ export function PainelCamadas({ config, onChange, onFechar }: PainelCamadasProps
         onChange({ ...config, [key]: value });
     };
 
-    // Combina a animação de entrada com o drag
     const translateY = Animated.add(slideAnim, dragOffset);
 
     return (
         <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-            {/* Backdrop */}
             <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]} pointerEvents="auto">
                 <Pressable style={StyleSheet.absoluteFill} onPress={fechar} />
             </Animated.View>
 
-            {/* Painel */}
             <Animated.View
                 style={[styles.painel, { transform: [{ translateY }] }]}
                 pointerEvents="auto"
             >
-                {/* Handle arrastável */}
                 <View style={styles.handleArea} {...panResponder.panHandlers}>
                     <View style={styles.handle} />
                     <View style={styles.cabecalho}>
                         <Text style={styles.titulo}>Camadas do Mapa</Text>
                         <Pressable onPress={fechar} hitSlop={12}>
-                            <Ionicons name="close" size={22} color="#6B7280" />
+                            <Ionicons name="close" size={22} color={colors.textMuted} />
                         </Pressable>
                     </View>
                 </View>
@@ -166,7 +160,7 @@ const styles = StyleSheet.create({
     painel: {
         position: 'absolute',
         bottom: 0, left: 0, right: 0,
-        backgroundColor: '#1a2035',
+        backgroundColor: colors.surface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         maxHeight: '75%',
@@ -178,7 +172,7 @@ const styles = StyleSheet.create({
         paddingBottom: 4,
     },
     handle: {
-        width: 40, height: 4, backgroundColor: '#6B7280',
+        width: 40, height: 4, backgroundColor: colors.textMuted,
         borderRadius: 2, alignSelf: 'center', marginBottom: 12, opacity: 0.5,
     },
     cabecalho: {
@@ -187,16 +181,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingBottom: 8,
     },
-    titulo: { color: '#ffffff', fontSize: 18, fontWeight: 'bold' },
+    titulo: { color: colors.textPrimary, fontSize: 18, fontWeight: 'bold' },
     scrollContent: { paddingHorizontal: 20, paddingBottom: 8 },
     secaoTitulo: {
-        color: '#6B7280', fontSize: 11, fontWeight: '600',
+        color: colors.textMuted, fontSize: 11, fontWeight: '600',
         letterSpacing: 1, marginBottom: 8, marginTop: 4,
     },
     item: {
         flexDirection: 'row', justifyContent: 'space-between',
         alignItems: 'center', paddingVertical: 12,
     },
-    itemLabel: { color: '#ffffff', fontSize: 15 },
-    separador: { height: 1, backgroundColor: '#2a3045', marginVertical: 8 },
+    itemLabel: { color: colors.textPrimary, fontSize: 15 },
+    separador: { height: 1, backgroundColor: colors.border, marginVertical: 8 },
 });
