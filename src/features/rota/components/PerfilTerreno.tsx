@@ -214,6 +214,9 @@ export function PerfilTerreno({ waypoints, onFechar }: PerfilTerrenoProps) {
                                 <Text style={styles.legendaTexto}>Altitude planejada ({altPlanejadaNum} ft)</Text>
                             </View>
                         )}
+                        <Text style={styles.legendaNota}>
+                            Margem de +1.000 ft — padrão geral para voo VFR em área não montanhosa
+                        </Text>
                     </View>
                 </ScrollView>
             )}
@@ -342,6 +345,7 @@ const styles = StyleSheet.create({
     legendaContainer: {
         alignItems: 'center',
         paddingVertical: 8,
+        paddingHorizontal: 20,
         gap: 4,
     },
     legenda: {
@@ -361,5 +365,12 @@ const styles = StyleSheet.create({
     legendaTexto: {
         color: colors.textMuted,
         fontSize: 11,
+    },
+    legendaNota: {
+        color: colors.textMuted,
+        fontSize: 11,
+        textAlign: 'center',
+        opacity: 0.7,
+        marginTop: 4,
     },
 });
