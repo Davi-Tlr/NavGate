@@ -1,4 +1,4 @@
-# NavGate ✈️
+# NavGate
 
 **Aplicativo gratuito de planejamento de voo VFR para pilotos brasileiros.**
 
