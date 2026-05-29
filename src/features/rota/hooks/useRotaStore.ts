@@ -10,6 +10,9 @@ interface RotaState {
     waypoints: Waypoint[];
     modoRota: boolean;
     onboardingVisto: boolean;
+    velocidadeCruzeiro: string;
+    consumoHorario: string;
+    horaSaida: string;
     adicionarAerodromo: (aerodromo: Aerodromo) => void;
     adicionarPontoLivre: (coords: [number, number]) => void;
     removerWaypoint: (id: string) => void;
@@ -18,6 +21,9 @@ interface RotaState {
     marcarOnboardingVisto: () => void;
     reordenarWaypoints: (waypoints: Waypoint[]) => void;
     renomearWaypoint: (id: string, novoLabel: string) => void;
+    setVelocidadeCruzeiro: (v: string) => void;
+    setConsumoHorario: (v: string) => void;
+    setHoraSaida: (v: string) => void;
 }
 
 export const useRotaStore = create<RotaState>()(
@@ -26,6 +32,9 @@ export const useRotaStore = create<RotaState>()(
             waypoints: [],
             modoRota: false,
             onboardingVisto: false,
+            velocidadeCruzeiro: '',
+            consumoHorario: '',
+            horaSaida: '',
 
             adicionarAerodromo: (aerodromo) => {
                 set(state => {
@@ -67,7 +76,6 @@ export const useRotaStore = create<RotaState>()(
             limparRota: () => set({ waypoints: [] }),
             setModoRota: (ativo) => set({ modoRota: ativo }),
             marcarOnboardingVisto: () => set({ onboardingVisto: true }),
-
             reordenarWaypoints: (waypoints: Waypoint[]) => set({ waypoints }),
 
             renomearWaypoint: (id: string, novoLabel: string) => {
@@ -77,15 +85,20 @@ export const useRotaStore = create<RotaState>()(
                     )
                 }));
             },
+
+            setVelocidadeCruzeiro: (v) => set({ velocidadeCruzeiro: v }),
+            setConsumoHorario: (v) => set({ consumoHorario: v }),
+            setHoraSaida: (v) => set({ horaSaida: v }),
         }),
         {
             name: 'navgate-rota',
             storage: createJSONStorage(() => AsyncStorage),
-            // Persiste só waypoints e onboardingVisto
-            // modoRota sempre começa desativado ao reabrir o app
             partialize: (state) => ({
                 waypoints: state.waypoints,
                 onboardingVisto: state.onboardingVisto,
+                velocidadeCruzeiro: state.velocidadeCruzeiro,
+                consumoHorario: state.consumoHorario,
+                horaSaida: state.horaSaida,
             }),
         }
     )

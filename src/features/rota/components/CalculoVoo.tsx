@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     View, Text, StyleSheet, TextInput,
     TouchableOpacity, Modal, KeyboardAvoidingView,
@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Rota } from '../types';
+import { useRotaStore } from '../hooks/useRotaStore';
 import { colors } from '@/constants/theme';
 
 interface CalculoVooProps {
@@ -15,16 +16,16 @@ interface CalculoVooProps {
 }
 
 export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
-    const [velocidade, setVelocidade] = useState('');
-    const [consumo, setConsumo] = useState('');
-    const [horaSaida, setHoraSaida] = useState(() => {
-        const agora = new Date();
-        return `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-    });
+    const {
+        velocidadeCruzeiro, setVelocidadeCruzeiro,
+        consumoHorario, setConsumoHorario,
+        horaSaida, setHoraSaida,
+    } = useRotaStore();
 
-    const velocidadeNum = parseFloat(velocidade);
-    const consumoNum = parseFloat(consumo);
+    const velocidadeNum = parseFloat(velocidadeCruzeiro);
+    const consumoNum = parseFloat(consumoHorario);
     const temVelocidade = velocidadeNum > 0;
+    const temConsumo = consumoNum > 0;
 
     const tempoTotalMin = temVelocidade
         ? (rota.distanciaTotalNM / velocidadeNum) * 60
@@ -47,15 +48,19 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
         return `${etaH.toString().padStart(2, '0')}:${etaM.toString().padStart(2, '0')}`;
     };
 
-    const combustivelTotal = temVelocidade && consumoNum > 0
+    const combustivelTotal = temVelocidade && temConsumo
         ? (tempoTotalMin / 60) * consumoNum
         : null;
 
     const trechosComTempo = temVelocidade
-        ? rota.trechos.map(t => ({
-            ...t,
-            tempoMin: (t.distanciaNM / velocidadeNum) * 60,
-        }))
+        ? rota.trechos.map(t => {
+            const tempoMin = (t.distanciaNM / velocidadeNum) * 60;
+            return {
+                ...t,
+                tempoMin,
+                combustivelTrecho: temConsumo ? (tempoMin / 60) * consumoNum : null,
+            };
+        })
         : [];
 
     const eta = calcularETA();
@@ -93,8 +98,8 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                 <View style={styles.campoInput}>
                                     <TextInput
                                         style={styles.input}
-                                        value={velocidade}
-                                        onChangeText={setVelocidade}
+                                        value={velocidadeCruzeiro}
+                                        onChangeText={setVelocidadeCruzeiro}
                                         keyboardType="numeric"
                                         placeholder="ex: 90"
                                         placeholderTextColor={colors.textMuted}
@@ -109,8 +114,8 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                 <View style={styles.campoInput}>
                                     <TextInput
                                         style={styles.input}
-                                        value={consumo}
-                                        onChangeText={setConsumo}
+                                        value={consumoHorario}
+                                        onChangeText={setConsumoHorario}
                                         keyboardType="numeric"
                                         placeholder="ex: 20"
                                         placeholderTextColor={colors.textMuted}
@@ -185,9 +190,16 @@ export function CalculoVoo({ rota, visible, onFechar }: CalculoVooProps) {
                                                         {t.distanciaNM.toFixed(1)} NM
                                                     </Text>
                                                 </View>
-                                                <Text style={styles.trechoTempo}>
-                                                    {formatarTempo(t.tempoMin)}
-                                                </Text>
+                                                <View style={styles.trechoResultados}>
+                                                    <Text style={styles.trechoTempo}>
+                                                        {formatarTempo(t.tempoMin)}
+                                                    </Text>
+                                                    {t.combustivelTrecho !== null && (
+                                                        <Text style={styles.trechoCombustivel}>
+                                                            {t.combustivelTrecho.toFixed(1)} L
+                                                        </Text>
+                                                    )}
+                                                </View>
                                             </View>
                                         ))}
                                     </>
@@ -353,9 +365,18 @@ const styles = StyleSheet.create({
         color: colors.textMuted,
         fontSize: 14,
     },
+    trechoResultados: {
+        alignItems: 'flex-end',
+        gap: 2,
+    },
     trechoTempo: {
         color: colors.textPrimary,
         fontSize: 14,
+        fontWeight: '600',
+    },
+    trechoCombustivel: {
+        color: colors.success,
+        fontSize: 12,
         fontWeight: '600',
     },
     dica: {

@@ -54,7 +54,7 @@ O NavGate foi criado para resolver isso: um app em português, gratuito, com car
 | Expo Router | ~6.0.23 |
 | MapLibre React Native | ^10.4.2 |
 | Zustand | ^5.0.12 |
-| AsyncStorage | 2.2.0 |
+| AsyncStorage | 3.1.0 |
 | expo-sqlite | ~16.0.10 |
 | expo-location | ~19.0.8 |
 | react-native-reanimated | ^3.19.4 |

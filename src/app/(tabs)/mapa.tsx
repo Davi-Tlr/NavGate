@@ -194,35 +194,37 @@ export default function MapaScreen() {
           <Text style={styles.botaoDesativarRotaTexto}>Sair da Rota</Text>
         </TouchableOpacity>
       )}
+      {!painelAberto && (
+        <>
+          <TouchableOpacity
+            style={[styles.botaoRota, modoRota && styles.botaoRotaAtivo]}
+            onPress={toggleModoRota}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="git-branch" size={22} color={modoRota ? colors.background : colors.success} />
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.botaoRota, modoRota && styles.botaoRotaAtivo]}
-        onPress={toggleModoRota}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="git-branch" size={22} color={modoRota ? colors.background : colors.success} />
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.botaoCamadas}
+            onPress={() => setPainelAberto(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="layers" size={22} color={colors.primary} />
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.botaoCamadas}
-        onPress={() => setPainelAberto(true)}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="layers" size={22} color={colors.primary} />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.botaoGps}
-        onPress={irParaMinhaLocalizacao}
-        activeOpacity={0.8}
-        disabled={localizando}
-      >
-        {localizando
-          ? <ActivityIndicator size="small" color={colors.primary} />
-          : <Ionicons name="locate" size={22} color={colors.primary} />
-        }
-      </TouchableOpacity>
-
+          <TouchableOpacity
+            style={styles.botaoGps}
+            onPress={irParaMinhaLocalizacao}
+            activeOpacity={0.8}
+            disabled={localizando}
+          >
+            {localizando
+              ? <ActivityIndicator size="small" color={colors.primary} />
+              : <Ionicons name="locate" size={22} color={colors.primary} />
+            }
+          </TouchableOpacity>
+        </>
+      )}
       {selecionado && !modoRota && (
         <AerodromoPanel
           aerodromo={selecionado}
