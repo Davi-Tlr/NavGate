@@ -59,6 +59,8 @@ export const mapaService = {
 
       if (!Array.isArray(items) || items.length === 0) return null;
 
+      // O MapLibre exige GeoJSON no formato FeatureCollection para ShapeSource.
+      // A API OpenAIP retorna um array de objetos próprios, portanto a conversão é obrigatória.
       const featureCollection = {
         type: 'FeatureCollection',
         features: items

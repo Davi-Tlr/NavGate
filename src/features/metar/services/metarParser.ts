@@ -1,5 +1,11 @@
 import { MetarProcessado } from '../types';
 
+/**
+ * Classifica as condições com base nos limiares FAA/ICAO:
+ * LIFR < IFR < MVFR < VFR. O teto só entra no cálculo quando há camada BKN ou OVC
+ * (camadas FEW/SCT não formam teto oficial). Visibilidade e teto são avaliados de forma
+ * independente: basta um deles atingir o limiar para rebaixar a condição.
+ */
 function classificarCondicao(
     visibilidadeMetros: number,
     tetoPes: number | null
@@ -93,6 +99,7 @@ export function parsearMetar(raw: string, icao: string): MetarProcessado {
             const cobertura = matchNuvem[1];
             const altitude = parseInt(matchNuvem[2]) * 100;
             nuvens = `${COBERTURA[cobertura] ?? cobertura} a ${altitude.toLocaleString('pt-BR')} ft`;
+            // Apenas BKN e OVC constituem teto oficial; FEW e SCT não limitam o voo VFR
             if ((cobertura === 'BKN' || cobertura === 'OVC') && tetoPes === null) {
                 tetoPes = altitude;
             }

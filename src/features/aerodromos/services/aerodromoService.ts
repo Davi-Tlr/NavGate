@@ -1,3 +1,4 @@
+// Busca e lookup no JSON local com 4.609 aeródromos brasileiros.
 import aerodromosData from '../../../../assets/data/aerodromos_br.json';
 import { Aerodromo } from '../types';
 

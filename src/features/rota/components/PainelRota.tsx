@@ -31,6 +31,8 @@ export function PainelRota({
     const [novoNome, setNovoNome] = useState('');
     const [calculoAberto, setCalculoAberto] = useState(false);
 
+    // Snap points baseados na altura real do mapa (via onLayout no mapa.tsx), não em Dimensions,
+    // para garantir que o painel não ultrapasse a área visível em dispositivos com insets variáveis.
     const SNAP_COLLAPSED = mapHeight > 0 ? mapHeight * 0.60 : 400;
     const SNAP_EXPANDED = mapHeight > 0 ? mapHeight * 0.88 : 600;
     const CLOSE_THRESHOLD = mapHeight > 0 ? mapHeight * 0.28 : 180;

@@ -60,6 +60,7 @@ export const useFavoritos = () => {
   const store = useFavoritosStore();
 
   useEffect(() => {
+    // Lê o estado direto da store para não re-executar quando múltiplos componentes montam ao mesmo tempo.
     const { carregado, isLoading, fetchFavoritos } = useFavoritosStore.getState();
     if (!carregado && !isLoading) {
       fetchFavoritos();

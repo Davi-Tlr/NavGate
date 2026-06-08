@@ -2,6 +2,8 @@ import * as SQLite from 'expo-sqlite';
 import { Aerodromo } from '../../aerodromos/types';
 import { Favorito } from '../types';
 
+// SQLite foi escolhido em vez de AsyncStorage porque permite consultas relacionais, ordenação
+// por data e remoção individual por chave primária sem carregar todos os registros na memória.
 const DATABASE_NAME = 'navgate.db';
 let dbInstance: SQLite.SQLiteDatabase | null = null;
 

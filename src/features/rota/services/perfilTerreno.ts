@@ -1,3 +1,4 @@
+// Busca o perfil de elevação do terreno ao longo da rota usando a API Open-Topo-Data (SRTM 90m).
 import { Waypoint } from '../types';
 import { getCoordsWaypoint } from '../utils';
 import { calcularDistanciaNM } from './rotaService';
@@ -48,6 +49,7 @@ export async function buscarPerfilTerreno(waypoints: Waypoint[]): Promise<PontoE
         }
     }
 
+    // A API limita a 100 pontos por requisição; a amostragem uniforme preserva a forma do perfil.
     const passo = Math.ceil(pontos.length / 100);
     const pontosFiltrados = pontos.filter((_, i) => i % passo === 0).slice(0, 100);
 

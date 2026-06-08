@@ -3,6 +3,10 @@ import { getCoordsWaypoint } from '../utils';
 
 const RAIO_TERRA_NM = 3440.065;
 
+/**
+ * Haversine é usado aqui porque leva em conta a curvatura da Terra, essencial para
+ * distâncias aeronáuticas precisas. Fórmulas planas introduzem erro crescente acima de ~50 NM.
+ */
 export function calcularDistanciaNM(
     lat1: number, lng1: number,
     lat2: number, lng2: number
@@ -17,6 +21,11 @@ export function calcularDistanciaNM(
     return RAIO_TERRA_NM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * Retorna o rumo verdadeiro (True Course) em graus de 0 a 360.
+ * Rumo verdadeiro é o ângulo medido a partir do norte geográfico, sem correção de variação magnética.
+ * O piloto aplica a declinação magnética local para obter o rumo magnético a voar.
+ */
 export function calcularRumoVerdadeiro(
     lat1: number, lng1: number,
     lat2: number, lng2: number

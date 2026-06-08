@@ -12,6 +12,8 @@ const AERODROMOS_HITBOX_HALF_SIZE = 22;
 
 const WMS_BASE = 'https://geoaisweb.decea.mil.br/geoserver/ICA/wms';
 
+// As 46 cartas WAC foram divididas em 5 grupos regionais porque uma URL única com todos os layers
+// ultrapassa o limite de tamanho aceito pelo servidor GeoAISWeb da DECEA, resultando em erro 414.
 const WAC_REGIOES = {
   norte: 'WAC_2825_CABO_ORANGE,WAC_2826_MONTE_RORAIMA,WAC_2827_SERRA_PACARAIMA,WAC_2892_PICO_DA_NEBLINA,WAC_2893_BOA_VISTA,WAC_2894_TUMUCUMAQUE,WAC_2895_MACAPA,WAC_2947_SANTAREM,WAC_2948_MANAUS,WAC_2949_SAO_GABRIEL_DA_CACHOEIRA,WAC_3012_CRUZEIRO_DO_SUL,WAC_3013_TABATINGA,WAC_3014_HUMAITA,WAC_3071_PORTO_VELHO,WAC_3072_TARAUACA',
   nordeste: 'WAC_2944_FORTALEZA,WAC_2945_SAO_LUIS,WAC_2946_BELEM,WAC_3015_ITAITUBA,WAC_3016_IMPERATRIZ,WAC_3017_TERESINA,WAC_3018_NATAL,WAC_3019_FERNANDO_DE_NORONHA,WAC_3066_RECIFE,WAC_3067_PETROLINA,WAC_3141_SALVADOR',
@@ -104,6 +106,8 @@ export function MapaBase({
   onLongPressMapa,
 }: MapaBaseProps) {
   const mapRef = useRef<any>(null);
+  // useMemo evita que o MapLibre receba um novo objeto de estilo a cada render, o que forçaria
+  // o recarregamento completo das tiles mesmo sem mudança nas camadas ativas.
   const mapStyle = useMemo(
     () => buildMapStyle(mostrarWac, mostrarRea, satelite),
     [mostrarWac, mostrarRea, satelite]

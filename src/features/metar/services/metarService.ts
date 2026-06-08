@@ -1,3 +1,4 @@
+// Requisições METAR e TAF ao NOAA Aviation Weather Center (AWC) com tratamento de resposta vazia.
 import { parsearMetar } from './metarParser';
 
 const BASE_URL = 'https://aviationweather.gov/api/data';

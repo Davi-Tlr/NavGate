@@ -1,3 +1,4 @@
+// Estado global da rota com persistência via AsyncStorage; expõe cálculos derivados via useRota.
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
@@ -93,6 +94,9 @@ export const useRotaStore = create<RotaState>()(
         {
             name: 'navgate-rota',
             storage: createJSONStorage(() => AsyncStorage),
+            // modoRota é excluído do partialize intencionalmente: o app sempre inicia com o
+            // modo de rota desativado, independente do estado anterior. Persistir isso causaria
+            // o painel de rota abrir automaticamente ao reabrir o app, o que é indesejado.
             partialize: (state) => ({
                 waypoints: state.waypoints,
                 onboardingVisto: state.onboardingVisto,

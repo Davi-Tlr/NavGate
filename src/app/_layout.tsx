@@ -1,3 +1,4 @@
+// gesture-handler e reanimated devem ser os dois primeiros imports do arquivo de entrada.
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { Stack } from 'expo-router';
