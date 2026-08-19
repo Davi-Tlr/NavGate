@@ -1,177 +1,500 @@
-# NavGate
+<p align="center">
+  <img src="assets/icon.png" alt="NavGate" width="110">
+</p>
 
-**Aplicativo gratuito de planejamento de voo VFR para pilotos brasileiros.**
+<h1 align="center">NavGate</h1>
 
-Desenvolvido como projeto de extensão universitária na Universidade Estácio de Sá (campus Maracanã)
+<p align="center">
+  <strong>Planejamento de voo VFR para pilotos brasileiros.</strong>
+</p>
 
----
+<p align="center">
+  Cartas aeronáuticas, meteorologia, planejamento de rota e navegação em um único aplicativo.
+</p>
 
-## Por que o NavGate existe?
+<p align="center">
+  <img src="https://img.shields.io/badge/React%20Native-0.81.5-61DAFB?logo=react&logoColor=white" alt="React Native">
+  <img src="https://img.shields.io/badge/Expo-54-000020?logo=expo&logoColor=white" alt="Expo">
+  <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white" alt="Android">
+</p>
 
-Pilotos VFR brasileiros não têm muitas opções gratuitas para planejar voos. Os apps mais usados no mundo, ForeFlight e Garmin Pilot, são pagos em dólar, em inglês, e nem sempre refletem as particularidades do espaço aéreo brasileiro.
-
-O NavGate foi criado para resolver isso: um app em português, gratuito, com cartas oficiais do DECEA e dados meteorológicos em tempo real.
-
----
-
-## O que o app faz
-
-### Para o piloto
-
-**Antes do voo:**
-- Busca qualquer um dos 4.609 aeródromos brasileiros por código ICAO, nome ou cidade
-- Mostra se o aeródromo opera VFR, IFR ou ambos
-- Exibe o METAR e TAF em tempo real, condições meteorológicas atuais e previsão
-- Classifica automaticamente as condições: VFR (bom para voar), MVFR (marginal), IFR (instrumentos necessários) ou LIFR (muito ruim)
-- Abre as cartas oficiais do aeródromo direto no AISWEB do DECEA
-
-**No planejamento da rota:**
-- Traça a rota no mapa tocando nos aeródromos em sequência
-- Calcula distância em milhas náuticas (NM) e rumo verdadeiro por trecho
-- Reordena os pontos arrastando a lista
-- Digita a velocidade de cruzeiro e o app calcula o tempo estimado de cada trecho, combustível necessário e horário de chegada (ETA)
-- Mostra o perfil de terreno ao longo da rota com a altitude mínima segura de cruzeiro
-- **A rota é salva automaticamente**, fechar o app e reabrir mantém o planejamento intacto
-
-**No mapa:**
-- Sobrepõe as cartas aeronáuticas WAC e REA oficiais do DECEA diretamente no mapa
-- Mostra os espaços aéreos controlados
-- Alterna entre mapa de rua e satélite
-- Localiza sua posição via GPS em tempo real
-
-**Favoritos:**
-- Salva aeródromos favoritos
-- Dashboard com status meteorológico de todos os favoritos em tempo real
+<p align="center">
+  Projeto de extensão universitária desenvolvido na Universidade Estácio de Sá — campus Maracanã.
+</p>
 
 ---
 
-### Stack
+## Sobre o NavGate
 
-| | Versão |
-|---|---|
-| React Native | 0.81.5 |
-| Expo SDK | ~54.0.33 |
-| Expo Router | ~6.0.23 |
-| MapLibre React Native | ^10.4.2 |
-| Zustand | ^5.0.12 |
-| AsyncStorage | 3.1.0 |
-| expo-sqlite | ~16.0.10 |
-| expo-location | ~19.0.8 |
-| react-native-reanimated | ^3.19.4 |
-| react-native-gesture-handler | ~2.28.0 |
-| react-native-draggable-flatlist | ^4.0.3 |
-| victory-native | ^36.9.2 |
+O **NavGate** nasceu da ideia de tornar o planejamento de voo VFR mais acessível para pilotos brasileiros.
 
-### APIs
+Grande parte das soluções consolidadas de planejamento aeronáutico são pagas, cobradas em moeda estrangeira e desenvolvidas principalmente para outros mercados.
 
-| API | O que faz | Precisa de chave? |
-|-----|-----------|:-----------------:|
-| NOAA Aviation Weather Center | METAR e TAF | Não |
-| DECEA GeoAISWeb WMS | Cartas WAC e REA sobrepostas no mapa | Não |
-| OpenAIP | Espaços aéreos | Sim (gratuita) |
-| Open-Topo-Data | Elevação do terreno para perfil de rota | Não |
-| OpenStreetMap | Mapa base | Não |
-| Esri World Imagery | Mapa satélite | Não |
+O projeto reúne em uma interface mobile recursos úteis para preparação e visualização de um voo VFR no Brasil, integrando dados meteorológicos, aeródromos, cartas aeronáuticas, espaços aéreos e ferramentas de cálculo de rota.
+
+> [!IMPORTANT]
+> O NavGate é um projeto acadêmico e não substitui fontes, publicações, procedimentos ou sistemas oficiais utilizados no planejamento e na execução de um voo. Sempre confirme as informações aeronáuticas em fontes oficiais antes da operação.
+
+---
+
+## Visão do aplicativo
+
+As capturas abaixo são exibidas em tamanho reduzido propositalmente para representar melhor a experiência mobile do aplicativo.
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <strong>METAR e TAF</strong>
+    </td>
+    <td align="center" width="33%">
+      <strong>Planejamento de voo</strong>
+    </td>
+    <td align="center" width="33%">
+      <strong>Favoritos</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/screenshots/metar-taf.jpg" alt="METAR e TAF no NavGate" width="190">
+    </td>
+    <td align="center">
+      <img src="assets/screenshots/calculadora.jpeg" alt="Cálculo de voo no NavGate" width="190">
+    </td>
+    <td align="center">
+      <img src="assets/screenshots/favoritos.jpg" alt="Aeródromos favoritos no NavGate" width="190">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <sub>Condições meteorológicas e previsão do aeródromo.</sub>
+    </td>
+    <td align="center">
+      <sub>Tempo, combustível, distância e dados do planejamento.</sub>
+    </td>
+    <td align="center">
+      <sub>Acesso rápido aos aeródromos acompanhados pelo piloto.</sub>
+    </td>
+  </tr>
+</table>
+
+<br>
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <strong>Cartas WAC</strong>
+    </td>
+    <td align="center" width="33%">
+      <strong>Mapa e satélite</strong>
+    </td>
+    <td align="center" width="33%">
+      <strong>GPS</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/screenshots/wac.jpg" alt="Carta WAC no mapa do NavGate" width="190">
+    </td>
+    <td align="center">
+      <img src="assets/screenshots/cartas-satelite.jpeg" alt="Cartas aeronáuticas sobre mapa satélite" width="190">
+    </td>
+    <td align="center">
+      <img src="assets/screenshots/gps.jpeg" alt="Posição GPS no mapa do NavGate" width="190">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <sub>Cartografia aeronáutica oficial sobreposta ao mapa.</sub>
+    </td>
+    <td align="center">
+      <sub>Alternância entre mapa base, satélite e camadas aeronáuticas.</sub>
+    </td>
+    <td align="center">
+      <sub>Posicionamento em tempo real durante a navegação.</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
+## Principais recursos
+
+### Planejamento de rota
+
+O piloto pode construir uma rota diretamente pelo mapa, selecionando aeródromos como waypoints.
+
+O NavGate:
+
+* calcula a distância de cada trecho em milhas náuticas;
+* calcula o rumo verdadeiro entre os waypoints;
+* exibe a distância total da rota;
+* permite reorganizar os pontos por drag and drop;
+* recebe velocidade de cruzeiro para estimar o tempo de voo;
+* calcula informações de combustível e ETA;
+* gera um perfil de elevação do terreno ao longo da rota;
+* mantém o planejamento salvo mesmo após fechar o aplicativo.
+
+Os cálculos de distância utilizam a **fórmula de Haversine**, considerando a curvatura da Terra para obter distâncias geográficas entre os waypoints.
+
+---
+
+### Mapa aeronáutico
+
+O mapa é construído com **MapLibre React Native** e reúne diferentes fontes de informação em uma única interface.
+
+Entre as camadas disponíveis estão:
+
+* aeródromos brasileiros;
+* cartas aeronáuticas WAC;
+* cartas REA;
+* espaços aéreos controlados;
+* mapa OpenStreetMap;
+* imagens de satélite;
+* posição GPS do dispositivo;
+* rota atualmente planejada.
+
+As cartas aeronáuticas são obtidas através dos serviços WMS do **DECEA GeoAISWeb**.
+
+---
+
+### Meteorologia
+
+O NavGate consulta informações meteorológicas aeronáuticas e apresenta os dados de forma mais amigável ao piloto.
+
+Entre os recursos estão:
+
+* METAR;
+* TAF;
+* condições meteorológicas atuais;
+* interpretação dos dados do METAR;
+* classificação automática das condições de voo;
+* acesso aos dados por aeródromo.
+
+As condições são classificadas como:
+
+| Categoria | Condição                             |
+| --------- | ------------------------------------ |
+| **VFR**   | Condições favoráveis para voo visual |
+| **MVFR**  | Condições visuais marginais          |
+| **IFR**   | Condições de voo por instrumentos    |
+| **LIFR**  | Condições IFR muito restritivas      |
+
+Os dados meteorológicos são obtidos através do **NOAA Aviation Weather Center**.
+
+---
+
+### Aeródromos
+
+O aplicativo utiliza uma base local com **4.609 aeródromos brasileiros**.
+
+É possível pesquisar por:
+
+* código ICAO;
+* nome do aeródromo;
+* cidade.
+
+O NavGate também apresenta informações operacionais do aeródromo e oferece acesso às cartas publicadas no **AISWEB**.
+
+---
+
+### Favoritos
+
+Aeródromos consultados frequentemente podem ser adicionados aos favoritos.
+
+A tela de favoritos funciona como um pequeno dashboard, permitindo acompanhar rapidamente os aeródromos de interesse e suas condições meteorológicas.
+
+Os favoritos são armazenados localmente utilizando **SQLite**.
+
+---
+
+## Tecnologias
+
+### Aplicativo
+
+| Tecnologia            |     Versão | Função                        |
+| --------------------- | ---------: | ----------------------------- |
+| React Native          |   `0.81.5` | Aplicativo mobile             |
+| React                 |   `19.1.0` | Interface                     |
+| Expo                  | `~54.0.33` | Toolchain e runtime           |
+| Expo Router           |  `~6.0.23` | Navegação baseada em arquivos |
+| TypeScript            |   `~5.9.2` | Tipagem estática              |
+| MapLibre React Native |  `^10.4.2` | Renderização do mapa          |
+| Zustand               |  `^5.0.12` | Estado global                 |
+| AsyncStorage          |   `^3.1.0` | Persistência simples          |
+| Expo SQLite           | `~16.0.10` | Banco local                   |
+| Expo Location         |  `~19.0.8` | GPS                           |
+| Victory Native        |  `^36.9.2` | Visualização de dados         |
+| Reanimated            |  `^3.19.4` | Animações                     |
+| Gesture Handler       |  `~2.28.0` | Gestos                        |
+| Draggable FlatList    |   `^4.0.3` | Reordenação de waypoints      |
+
+---
+
+## Fontes de dados e serviços
+
+| Serviço                      | Utilização          | Chave |
+| ---------------------------- | ------------------- | :---: |
+| NOAA Aviation Weather Center | METAR e TAF         |  Não  |
+| DECEA GeoAISWeb WMS          | Cartas WAC e REA    |  Não  |
+| OpenAIP                      | Espaços aéreos      |  Sim  |
+| Open-Topo-Data               | Elevação do terreno |  Não  |
+| OpenStreetMap                | Mapa base           |  Não  |
+| Esri World Imagery           | Imagens de satélite |  Não  |
+
+---
+
+## Arquitetura
+
+O projeto é organizado principalmente por **feature**, mantendo cada domínio do aplicativo com seus próprios componentes, serviços, hooks e tipos.
+
+```text
+NavGate/
+├── assets/
+│   ├── data/
+│   ├── screenshots/
+│   ├── icon.png
+│   ├── adaptive-icon.png
+│   └── splash-icon.png
+│
+├── scripts/
+│   ├── airports.csv
+│   └── processar_aerodromos.js
+│
+└── src/
+    ├── app/
+    │   ├── (tabs)/
+    │   │   ├── index.tsx
+    │   │   ├── mapa.tsx
+    │   │   ├── meteorologia.tsx
+    │   │   └── favoritos.tsx
+    │   │
+    │   ├── aerodromo/
+    │   ├── metar/
+    │   └── _layout.tsx
+    │
+    ├── constants/
+    │
+    ├── features/
+    │   ├── aerodromos/
+    │   ├── favoritos/
+    │   ├── mapa/
+    │   ├── metar/
+    │   └── rota/
+    │       ├── components/
+    │       │   ├── CalculoVoo.tsx
+    │       │   ├── PainelRota.tsx
+    │       │   └── PerfilTerreno.tsx
+    │       ├── hooks/
+    │       └── services/
+    │           ├── perfilTerreno.ts
+    │           └── rotaService.ts
+    │
+    └── services/
+```
+
+Essa separação evita concentrar regras de negócio diretamente nas telas e facilita a evolução independente de cada recurso.
+
+---
+
+## Estado e persistência
+
+### Rotas
+
+O planejamento utiliza **Zustand** como estado global.
+
+Com o middleware de persistência e o **AsyncStorage**, os waypoints da rota permanecem armazenados mesmo após o fechamento do aplicativo.
+
+O estado temporário da interface, como o modo de edição da rota, não precisa ser persistido.
+
+### Favoritos
+
+Os favoritos utilizam **SQLite**, adequado para armazenar os registros estruturados dos aeródromos e realizar consultas locais.
+
+---
+
+## Configuração
+
+### Pré-requisitos
+
+Para desenvolvimento:
+
+* Node.js;
+* npm;
+* Expo CLI através do `npx`;
+* conta Expo/EAS;
+* dispositivo Android ou emulador;
+* chave da API OpenAIP.
+
+---
+
+### Instalação
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/Davi-Tlr/NavGate.git
+cd NavGate
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+---
 
 ### Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz:
 
 ```env
 EXPO_PUBLIC_OPENAIP_KEY=sua_chave_aqui
 ```
 
-Chave gratuita obtida em [openAIP.net](https://openAIP.net).
+A chave pode ser obtida gratuitamente através do OpenAIP.
 
-Para builds EAS:
+Para cadastrar a variável nos builds EAS:
+
 ```bash
-npx eas env:create --name EXPO_PUBLIC_OPENAIP_KEY --value SUA_CHAVE --scope project --visibility plaintext --environment production --environment preview
+npx eas env:create \
+  --name EXPO_PUBLIC_OPENAIP_KEY \
+  --value SUA_CHAVE \
+  --scope project \
+  --visibility plaintext \
+  --environment production \
+  --environment preview
 ```
 
-### Decisões técnicas importantes
+---
 
-**`newArchEnabled: false` no app.json, não alterar**  
-O MapLibre v10 é incompatível com a nova arquitetura do React Native. Mudar essa configuração quebra o mapa completamente.
+## Executando o projeto
 
-**MapLibre não funciona no Expo Go**  
-É obrigatório usar um APK gerado pelo EAS com `developmentClient: true`. Não adianta escanear o QR code pelo Expo Go.
+> [!NOTE]
+> O MapLibre utilizado pelo projeto depende de código nativo e, portanto, o aplicativo não deve ser executado pelo Expo Go.
 
-**WMS do DECEA dividido por região**  
-A URL do WMS com todos os 46 layers WAC concatenados é longa demais e o servidor rejeita. A solução foi dividir em 5 grupos regionais (norte, nordeste, centro, sudeste, sul), cada um como uma source separada no MapLibre.
+### Development build
 
-**react-native-reanimated na versão 3.x**  
-A versão 4.x exige nova arquitetura, incompatível com MapLibre v10. Manter em 3.19.4.
+Gere o APK de desenvolvimento:
 
-**Heurística SB para METAR**  
-Apenas aeródromos com prefixo `SB` têm estação meteorológica ativa no AWC. Os demais mostram "Sem estação meteorológica" sem tentar a requisição.
-
-**Zustand + AsyncStorage para estado da rota**  
-Zustand gerencia o estado global reativo da rota (todos os componentes atualizam automaticamente quando um waypoint é adicionado). O middleware `persist` salva automaticamente no AsyncStorage, a rota sobrevive ao fechamento do app, assim como no ForeFlight e Garmin Pilot. O `modoRota` não é persistido intencionalmente: ao reabrir o app o piloto começa sempre no modo normal.
-
-**SQLite para favoritos**  
-Favoritos usam SQLite (`expo-sqlite`) por ser um banco de dados relacional completo, adequado para dados estruturados com múltiplas colunas que precisam de queries eficientes.
-
-### Estrutura de pastas
-
-```
-NavGate/
-├── src/
-│   ├── app/
-│   │   ├── _layout.tsx              ← configuração de rotas e gestos
-│   │   ├── (tabs)/
-│   │   │   ├── index.tsx            ← Busca de aeródromos
-│   │   │   ├── mapa.tsx             ← Mapa principal
-│   │   │   ├── meteorologia.tsx     ← Dashboard meteorológico
-│   │   │   └── favoritos.tsx
-│   │   ├── aerodromo/[icao].tsx     ← Detalhes do aeródromo
-│   │   └── metar/[icao].tsx         ← METAR / TAF
-│   ├── features/
-│   │   ├── aerodromos/              ← base local de 4.609 aeródromos (JSON)
-│   │   ├── favoritos/               ← SQLite + Zustand
-│   │   ├── metar/                   ← parser METAR + NOAA + componentes
-│   │   ├── mapa/                    ← MapLibre + WMS DECEA + painel de camadas
-│   │   └── rota/                    ← planejamento, perfil de terreno, cálculo de voo
-│   └── services/
-│       └── api/                     ← cliente HTTP compartilhado
-├── scripts/
-│   ├── airports.csv                 ← base mundial de aeródromos (OurAirports)
-│   └── processar_aerodromos.js      ← filtra apenas aeródromos brasileiros para o JSON
-└── assets/
-```
-
-### Como rodar
-
-**1. Instalar dependências**
 ```bash
-npm install
-```
-
-**2. Configurar variável de ambiente**
-```bash
-# Criar arquivo .env na raiz com:
-EXPO_PUBLIC_OPENAIP_KEY=sua_chave_aqui
-```
-
-**3. Gerar o APK de development**
-```bash
-# Muda package no app.json para com.navgate.app.dev
 npx eas build -p android --profile development
 ```
 
-**4. Instalar o APK no celular e iniciar o servidor**
+Depois de instalar o APK no dispositivo, inicie o Metro:
+
 ```bash
 npx expo start --clear
 ```
 
-### Builds separados para dev e produção
+---
 
-Os dois APKs coexistem no celular usando packages diferentes:
+### Preview
 
-| | Package | Uso |
-|---|---|---|
-| Development | `com.navgate.app.dev` | Conecta com o servidor local para desenvolvimento |
-| Preview | `com.navgate.app` | Standalone, para distribuição ao usuário final |
+Para gerar um APK standalone:
 
-Para gerar o preview:
 ```bash
-# Confirma package como com.navgate.app no app.json
 npx eas build -p android --profile preview
 ```
+
+Os perfis de desenvolvimento e preview estão configurados através do `eas.json`.
+
+---
+
+## Decisões técnicas
+
+### MapLibre e New Architecture
+
+O projeto atualmente utiliza:
+
+```json
+"newArchEnabled": false
+```
+
+Essa configuração deve ser mantida enquanto a versão utilizada do MapLibre depender da arquitetura antiga do React Native.
+
+---
+
+### Reanimated 3
+
+O projeto permanece na série `3.x` do Reanimated para manter compatibilidade com a configuração atual do React Native e MapLibre.
+
+Versão utilizada:
+
+```text
+3.19.4
+```
+
+---
+
+### WMS do DECEA
+
+As cartas WAC são consumidas através do serviço WMS do GeoAISWeb.
+
+Em vez de solicitar todas as camadas em uma única URL, o carregamento é dividido em grupos regionais para evitar requisições excessivamente longas.
+
+A divisão utilizada é:
+
+```text
+Norte
+Nordeste
+Centro
+Sudeste
+Sul
+```
+
+---
+
+### Cálculo geográfico
+
+A distância entre dois waypoints é calculada utilizando **Haversine**.
+
+O rumo retornado pelo planejamento é o **rumo verdadeiro**, medido em relação ao norte geográfico.
+
+```text
+Waypoint A
+    │
+    ├── distância em NM
+    ├── rumo verdadeiro
+    ▼
+Waypoint B
+```
+
+Cada conjunto de trechos é então convertido para **GeoJSON `LineString`**, permitindo que a rota seja desenhada diretamente pelo MapLibre.
+
+---
+
+### Espaços aéreos
+
+Os espaços aéreos são obtidos pela API do OpenAIP e convertidos para uma `FeatureCollection` GeoJSON antes de serem entregues ao MapLibre.
+
+Isso mantém a integração do mapa independente do formato retornado pela API externa.
+
+---
+
+## Objetivo do projeto
+
+O NavGate busca explorar como tecnologias mobile e fontes abertas ou oficiais de dados podem ser reunidas para criar uma experiência moderna de planejamento VFR voltada ao contexto brasileiro.
+
+O projeto também serve como aplicação prática de conceitos como:
+
+* desenvolvimento mobile com React Native;
+* integração com APIs externas;
+* cartografia e GeoJSON;
+* cálculos geográficos;
+* persistência local;
+* arquitetura baseada em features;
+* gerenciamento de estado;
+* processamento e visualização de dados aeronáuticos.
+
+---
+
+<p align="center">
+  <img src="assets/icon.png" alt="NavGate" width="52">
+</p>
+
+<p align="center">
+  <strong>NavGate</strong><br>
+  <sub>Planejamento VFR brasileiro em uma experiência mobile.</sub>
+</p>
